@@ -1,0 +1,22 @@
+{
+  "name": "hrs3",
+  "private": true,
+  "description": "HRS3 storefront, admin, and API",
+  "scripts": {
+    "dev": "concurrently -n client,admin,server -c cyan,magenta,green \"npm run dev --prefix client\" \"npm run dev --prefix admin\" \"npm run dev --prefix server\"",
+    "install:all": "npm install --prefix client && npm install --prefix admin && npm install --prefix server",
+    "build:client": "npm run build --prefix client",
+    "build:admin": "npm run build --prefix admin",
+    "build:admin:subpath": "cross-env VITE_BASE=/admin/ npm run build --prefix admin",
+    "build": "npm run build:client && npm run build:admin",
+    "build:mono": "npm run build:client && npm run build:admin:subpath",
+    "start": "npm run start --prefix server",
+    "start:prod": "cross-env NODE_ENV=production SERVE_STATIC=true npm run start --prefix server"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
