@@ -8,15 +8,19 @@ import FAQ from "../components/FAQ";
 
 const Home = () => {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-10 sm:gap-20">
       <HeroCarousel />
-      <div className="w-full">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-8">
         <CategoryCarousel />
-        <div className="flex flex-col">
+        <div className="mt-10 sm:mt-20">
           <NewArrivals />
-          <Quality />
-          <FAQ />
         </div>
+      </div>
+      
+      <Quality />
+      
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-8 mb-20 sm:mb-32">
+        <FAQ />
       </div>
     </div>
   );

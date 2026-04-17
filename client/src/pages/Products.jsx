@@ -264,15 +264,15 @@ const Products = () => {
                       >
                         {categoryData[cat].map((sub) => (
                           <button
-                            key={sub}
-                            onClick={() => setSubCategory(sub)}
+                            key={sub.name}
+                            onClick={() => setSubCategory(sub.name)}
                             className={`block w-full text-left text-[10px] font-black uppercase tracking-widest transition-colors ${
-                              selectedSubCategory === sub
+                              selectedSubCategory === sub.name
                                 ? "text-indigo-600"
                                 : "text-zinc-400 hover:text-zinc-900"
                             }`}
                           >
-                            {sub}
+                            {sub.name}
                           </button>
                         ))}
                       </div>

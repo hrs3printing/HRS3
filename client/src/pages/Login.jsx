@@ -1,6 +1,7 @@
 import { useState, useCallback, memo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -17,10 +18,11 @@ const Login = () => {
     try {
       await api.post("/auth/login", form);
       window.dispatchEvent(new Event("userChanged"));
+      toast.success("Access Granted");
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
-      alert(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
     }
   };
 

@@ -1,6 +1,7 @@
 import { useState, useCallback, memo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -24,15 +25,15 @@ const Signup = () => {
     try {
       setIsSubmitting(true);
       const { data } = await api.post("/auth/register", form);
-      alert(
+      toast.success(
         data?.message ||
-          "Signup successful. Please verify your email before logging in.",
+          "Signup successful. Please verify your email.",
       );
       const email = data?.verificationTarget?.email || form.email;
       navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error) {
       console.error("Signup error:", error);
-      alert(error.response?.data?.message || "Signup failed");
+      toast.error(error.response?.data?.message || "Signup failed");
     } finally {
       setIsSubmitting(false);
     }

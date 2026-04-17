@@ -97,7 +97,11 @@ const HierarchicalCategorySelector = ({
 
     const existingSubs = category.subCategories || [];
     const namesToAdd = newNames.filter(
-      (n) => !existingSubs.some((s) => s.toLowerCase() === n.toLowerCase()),
+      (n) =>
+        !existingSubs.some((s) => {
+          const sName = typeof s === "string" ? s : s.name;
+          return sName.toLowerCase() === n.toLowerCase();
+        }),
     );
 
     if (namesToAdd.length === 0) {
@@ -105,7 +109,10 @@ const HierarchicalCategorySelector = ({
     }
 
     try {
-      const updatedSubCats = [...existingSubs, ...namesToAdd];
+      const updatedSubCats = [
+        ...existingSubs,
+        ...namesToAdd.map((n) => ({ name: n, image: null })),
+      ];
       await updateAdminCategory(category._id, {
         ...category,
         subCategories: updatedSubCats,
@@ -300,8 +307,9 @@ const HierarchicalCategorySelector = ({
                 <option value="">Quick Add Sub-category...</option>
                 {(categoryDataMap[selectedMainCat]?.subCategories || []).map(
                   (s) => (
-                    <option key={s} value={s}>
-                      {s} {selectedSubCategories.includes(s) ? "✓" : ""}
+                    <option key={s.name} value={s.name}>
+                      {s.name}{" "}
+                      {selectedSubCategories.includes(s.name) ? "✓" : ""}
                     </option>
                   ),
                 )}
@@ -364,18 +372,18 @@ const HierarchicalCategorySelector = ({
           {/* Selected Subcategory Pills for THIS main category */}
           <div className="flex flex-wrap gap-2 pt-1">
             {(categoryDataMap[selectedMainCat]?.subCategories || [])
-              .filter((s) => selectedSubCategories.includes(s))
+              .filter((s) => selectedSubCategories.includes(s.name))
               .map((s) => (
                 <div
-                  key={s}
+                  key={s.name}
                   className="flex items-center gap-2 rounded-lg border border-indigo-400/30 bg-indigo-500/10 px-3 py-1.5 text-[10px] font-bold text-indigo-400"
                 >
-                  {s}
+                  {s.name}
                   <button
                     type="button"
                     onClick={() =>
                       onSubCategoryChange(
-                        selectedSubCategories.filter((sub) => sub !== s),
+                        selectedSubCategories.filter((sub) => sub !== s.name),
                       )
                     }
                     className="flex h-4 w-4 items-center justify-center rounded-full transition-colors hover:bg-indigo-400/20"

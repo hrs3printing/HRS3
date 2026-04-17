@@ -15,11 +15,39 @@ export const createCategory = asyncHandler(async (req, res) => {
 });
 
 export const updateCategory = asyncHandler(async (req, res) => {
+  const oldCategory = await Category.findById(req.params.id);
+  if (!oldCategory) throw new AppError("Category not found", 404);
+
+  // 1. Identify public_ids to cleanup
+  const oldPublicIds = [];
+  if (oldCategory.image?.public_id) oldPublicIds.push(oldCategory.image.public_id);
+  oldCategory.subCategories?.forEach((sub) => {
+    if (sub.image?.public_id) oldPublicIds.push(sub.image.public_id);
+  });
+
+  const newPublicIds = [];
+  if (req.body.image?.public_id) newPublicIds.push(req.body.image.public_id);
+  req.body.subCategories?.forEach((sub) => {
+    if (sub.image?.public_id) newPublicIds.push(sub.image.public_id);
+  });
+
+  const idsToDelete = oldPublicIds.filter((id) => !newPublicIds.includes(id));
+
+  // 2. Cleanup removed images
+  if (idsToDelete.length > 0) {
+    try {
+      await deleteFromCloudinaryBatch(idsToDelete);
+    } catch (err) {
+      console.error("[Category Update Cleanup Error]", err.message);
+    }
+  }
+
+  // 3. Update DB
   const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
-  if (!category) throw new AppError("Category not found", 404);
+
   res.json(category);
 });
 

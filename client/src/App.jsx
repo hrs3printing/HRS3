@@ -21,6 +21,8 @@ const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Customize = lazy(() => import("./pages/Customize"));
+const CatalogCategories = lazy(() => import("./pages/CatalogCategories"));
+const CatalogProducts = lazy(() => import("./pages/CatalogProducts"));
 
 function App() {
   const location = useLocation();
@@ -43,8 +45,12 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faqs" element={<FAQs />} />
-                <Route path="/catalog" element={<Products />} />
-                <Route path="/products" element={<Navigate to="/catalog" replace />} />
+                <Route path="/catalog" element={<CatalogCategories />} />
+                <Route path="/catalog/:slug" element={<CatalogProducts />} />
+                <Route
+                  path="/products"
+                  element={<Navigate to="/catalog" replace />}
+                />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />

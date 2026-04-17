@@ -17,9 +17,32 @@ const CategoryManager = () => {
   const [form, setForm] = useState({
     name: "",
     image: null,
-    subCategories: [], // Use array instead of text
+    subCategories: [], // Array of { name, image }
   });
-  const [subInput, setSubInput] = useState(""); // Track current sub-category typing
+  const [subInput, setSubInput] = useState("");
+  const [subImage, setSubImage] = useState(null);
+
+  const handleSubImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("images", file);
+
+    setUploading(true);
+    try {
+      const response = await uploadAdminImages(formData);
+      const uploadedImage = response.images?.[0];
+      if (uploadedImage) {
+        setSubImage(uploadedImage);
+        toast.success("Sub-category image uploaded");
+      }
+    } catch (err) {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -62,14 +85,13 @@ const CategoryManager = () => {
     e.preventDefault();
     if (!form.name.trim()) return toast.error("Please enter a category name");
 
-    // Add any remaining text in subInput if user forgot to press enter
-    let finalSubCats = [...form.subCategories];
+    // Auto-add pending sub-category if name is typed but not "Added"
+    let finalSubCategories = [...form.subCategories];
     if (subInput.trim()) {
-      const extra = subInput
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      finalSubCats = [...new Set([...finalSubCats, ...extra])];
+      const exists = finalSubCategories.some((s) => s.name === subInput.trim());
+      if (!exists) {
+        finalSubCategories.push({ name: subInput.trim(), image: subImage });
+      }
     }
 
     try {
@@ -77,7 +99,7 @@ const CategoryManager = () => {
         await updateAdminCategory(editing._id, {
           name: form.name.trim(),
           image: form.image,
-          subCategories: finalSubCats,
+          subCategories: finalSubCategories,
         });
         toast.success("Category updated");
       } else {
@@ -93,7 +115,7 @@ const CategoryManager = () => {
           await createAdminCategory({
             name: names[0],
             image: form.image,
-            subCategories: finalSubCats,
+            subCategories: finalSubCategories,
           });
           toast.success(`Category "${names[0]}" created`);
         } else {
@@ -101,7 +123,7 @@ const CategoryManager = () => {
             await createAdminCategory({
               name,
               image: form.image,
-              subCategories: finalSubCats,
+              subCategories: finalSubCategories,
             });
           }
           toast.success(`${names.length} categories created`);
@@ -109,6 +131,7 @@ const CategoryManager = () => {
       }
       setForm({ name: "", image: null, subCategories: [] });
       setSubInput("");
+      setSubImage(null);
       setEditing(null);
       load();
     } catch (err) {
@@ -118,21 +141,27 @@ const CategoryManager = () => {
 
   const handleSubAdd = () => {
     if (!subInput.trim()) return;
-    const newSubs = subInput
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+
+    // Check if sub already exists
+    if (form.subCategories.some((s) => s.name === subInput.trim())) {
+      return toast.error("Sub-category already exists");
+    }
+
     setForm((f) => ({
       ...f,
-      subCategories: [...new Set([...f.subCategories, ...newSubs])],
+      subCategories: [
+        ...f.subCategories,
+        { name: subInput.trim(), image: subImage },
+      ],
     }));
     setSubInput("");
+    setSubImage(null);
   };
 
   const removeSub = (name) => {
     setForm((f) => ({
       ...f,
-      subCategories: f.subCategories.filter((s) => s !== name),
+      subCategories: f.subCategories.filter((s) => s.name !== name),
     }));
   };
 
@@ -192,39 +221,104 @@ const CategoryManager = () => {
 
             <div className="block text-sm">
               <span className="text-zinc-400 font-medium">
-                Sub-categories (press Enter or use comma)
+                Sub-categories (Add one by one with image)
               </span>
-              <div className="mt-1.5 flex flex-col gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-                <div className="flex flex-wrap gap-1.5">
+              <div className="mt-1.5 space-y-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="flex flex-wrap gap-2">
                   {form.subCategories.map((s) => (
-                    <span
-                      key={s}
-                      className="flex items-center gap-1 rounded bg-zinc-800 px-2 py-1 text-[10px] font-bold text-zinc-300"
+                    <div
+                      key={s.name}
+                      className="group relative flex items-center gap-2 rounded-lg bg-zinc-800 p-1.5 pr-3 text-[10px] font-bold text-zinc-300"
                     >
-                      {s}
+                      {s.image?.url && (
+                        <img
+                          src={s.image.url}
+                          className="h-6 w-6 rounded object-cover"
+                          alt=""
+                        />
+                      )}
+                      <span>{s.name}</span>
                       <button
                         type="button"
-                        onClick={() => removeSub(s)}
+                        onClick={() => removeSub(s.name)}
                         className="text-zinc-500 hover:text-white"
                       >
                         ×
                       </button>
-                    </span>
+                    </div>
                   ))}
                 </div>
-                <input
-                  placeholder="Type and press Enter..."
-                  className="w-full bg-transparent px-2 py-1 text-sm text-white outline-none"
-                  value={subInput}
-                  onChange={(e) => setSubInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleSubAdd();
-                    }
-                  }}
-                  onBlur={handleSubAdd}
-                />
+
+                <div className="flex flex-col gap-3 pt-3 border-t border-zinc-800">
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+                      {subImage ? (
+                        <>
+                          <img
+                            src={subImage.url}
+                            className="h-full w-full object-cover"
+                            alt=""
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setSubImage(null)}
+                            className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <span className="text-white text-lg">×</span>
+                          </button>
+                        </>
+                      ) : (
+                        <label className="flex h-full w-full cursor-pointer items-center justify-center hover:bg-zinc-800 transition">
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleSubImageUpload}
+                            disabled={uploading}
+                          />
+                          <svg
+                            className="h-4 w-4 text-zinc-500"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                        </label>
+                      )}
+                    </div>
+                    <input
+                      placeholder="Sub-category name..."
+                      className="flex-1 bg-transparent py-1 text-sm text-white outline-none"
+                      value={subInput}
+                      onChange={(e) => setSubInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSubAdd();
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSubAdd}
+                      className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition disabled:opacity-50"
+                      disabled={!subInput.trim() || uploading}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {uploading && (
+                    <p className="text-[10px] text-indigo-400 animate-pulse">
+                      Uploading asset...
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -356,14 +450,23 @@ const CategoryManager = () => {
                   {cat.name}
                 </td>
                 <td className="px-3 py-3 text-zinc-400 sm:px-6 sm:py-4">
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {cat.subCategories.map((sub, i) => (
-                      <span
+                      <div
                         key={i}
-                        className="rounded bg-zinc-800 px-2 py-0.5 text-[10px]"
+                        className="flex items-center gap-1.5 rounded bg-zinc-800 px-2 py-1 text-[10px] border border-zinc-700/50"
                       >
-                        {sub}
-                      </span>
+                        {sub.image?.url && (
+                          <img
+                            src={sub.image.url}
+                            className="h-4 w-4 rounded-sm object-cover"
+                            alt=""
+                          />
+                        )}
+                        <span className="font-medium text-zinc-300">
+                          {typeof sub === "string" ? sub : sub.name}
+                        </span>
+                      </div>
                     ))}
                   </div>
                 </td>
