@@ -1,9 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useCart } from "../context/CartContext";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { getProductById, getProducts } from "../api/productApi";
 import { PageShell, PageHero, PageContent } from "../components/PageShell";
+import MockupPreview from "../components/MockupPreview";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -231,6 +233,69 @@ const ProductDetail = () => {
               </div>
             </div>
           </div>
+
+          {/* MOCKUP PREVIEW SECTION */}
+          <div className="mt-32">
+            <MockupPreview />
+          </div>
+
+          {/* RELATED PRODUCTS */}
+          {relatedProducts.length > 0 && (
+            <div className="mt-32 space-y-16">
+              <div className="flex flex-col sm:flex-row items-end justify-between gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-indigo-600 text-[10px] font-black uppercase tracking-[0.4em]">
+                      The Collection
+                    </span>
+                    <div className="h-px w-12 bg-indigo-100" />
+                  </div>
+                  <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter text-black leading-none">
+                    Similar <span className="text-zinc-200">Pieces</span>
+                  </h2>
+                </div>
+                <Link
+                  to="/products"
+                  className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors underline underline-offset-8"
+                >
+                  View All Pieces
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
+                {relatedProducts.map((item, idx) => (
+                  <motion.div
+                    key={item._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                  >
+                    <Link to={`/product/${item._id}`} className="group block">
+                      <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden bg-zinc-50 border border-zinc-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-indigo-500/10 transition-all duration-500">
+                        <img
+                          src={
+                            item.image?.url ||
+                            (typeof item.image === "string" ? item.image : "")
+                          }
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="mt-6 space-y-2 px-2">
+                        <h3 className="text-sm font-black uppercase tracking-tight text-zinc-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                          {item.name}
+                        </h3>
+                        <p className="text-indigo-600 text-sm font-black tracking-tighter">
+                          ₹{item.price}
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </PageContent>
     </PageShell>

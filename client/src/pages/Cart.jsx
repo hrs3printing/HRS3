@@ -24,10 +24,9 @@ const Cart = () => {
     loadCart();
   }, [loadCart]);
 
-  const updateQty = async (id, size, qty) => {
-    if (qty < 1) return;
+  const updateQty = async (id, size, type) => {
     try {
-      await api.put("/cart/update", { productId: id, size, quantity: qty });
+      await api.put("/cart/update", { productId: id, type });
       loadCart();
     } catch (err) {
       toast.error("Update failed");
@@ -36,7 +35,7 @@ const Cart = () => {
 
   const removeItem = async (id, size) => {
     try {
-      await api.post("/cart/remove", { productId: id, size });
+      await api.delete("/cart/remove", { data: { productId: id } });
       toast.success("Item removed from archive");
       loadCart();
     } catch (err) {
@@ -44,15 +43,21 @@ const Cart = () => {
     }
   };
 
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + (item.product?.price || 0) * item.quantity,
-    0,
-  );
+  const subtotal = Array.isArray(cartItems)
+    ? cartItems.reduce(
+        (acc, item) => acc + (item.product?.price || 0) * (item.qty || 0),
+        0,
+      )
+    : 0;
 
   if (loading) {
     return (
       <PageShell>
-        <PageHero title="Your" accent="Archive" subtitle="Loading contents..." />
+        <PageHero
+          title="Your"
+          accent="Archive"
+          subtitle="Loading contents..."
+        />
         <PageContent>
           <div className="flex justify-center py-20">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-100 border-t-black" />
@@ -74,8 +79,18 @@ const Cart = () => {
         {cartItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 space-y-8 animate-fadeUp">
             <div className="w-24 h-24 rounded-full bg-zinc-50 flex items-center justify-center border-2 border-dashed border-zinc-200">
-              <svg className="w-10 h-10 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              <svg
+                className="w-10 h-10 text-zinc-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
               </svg>
             </div>
             <div className="text-center space-y-2">
@@ -132,11 +147,23 @@ const Cart = () => {
                           </p>
                         </div>
                         <button
-                          onClick={() => removeItem(item.product?._id, item.size)}
+                          onClick={() =>
+                            removeItem(item.product?._id, item.size)
+                          }
                           className="text-zinc-300 hover:text-red-500 transition-colors"
                         >
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
                           </svg>
                         </button>
                       </div>
@@ -165,23 +192,27 @@ const Cart = () => {
                     <div className="flex items-center justify-between pt-4">
                       <div className="flex items-center gap-6 bg-zinc-50 px-4 py-2 rounded-xl border border-zinc-100">
                         <button
-                          onClick={() => updateQty(item.product?._id, item.size, item.quantity - 1)}
+                          onClick={() =>
+                            updateQty(item.product?._id, item.size, "dec")
+                          }
                           className="text-lg font-black text-zinc-400 hover:text-black transition-colors"
                         >
                           −
                         </button>
                         <span className="text-xs font-black w-4 text-center">
-                          {item.quantity}
+                          {item.qty}
                         </span>
                         <button
-                          onClick={() => updateQty(item.product?._id, item.size, item.quantity + 1)}
+                          onClick={() =>
+                            updateQty(item.product?._id, item.size, "inc")
+                          }
                           className="text-lg font-black text-zinc-400 hover:text-black transition-colors"
                         >
                           +
                         </button>
                       </div>
                       <p className="text-sm sm:text-lg font-black text-black tracking-tighter">
-                        ₹{item.product?.price * item.quantity}
+                        ₹{(item.product?.price || 0) * (item.qty || 0)}
                       </p>
                     </div>
                   </div>

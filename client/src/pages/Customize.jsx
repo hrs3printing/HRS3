@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
 import toast from "react-hot-toast";
 import { getSettings } from "../api/productApi";
 import { PageShell, PageHero, PageContent } from "../components/PageShell";
@@ -10,6 +10,8 @@ const Customize = () => {
     description: "",
     name: "",
   });
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -27,10 +29,25 @@ const Customize = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image too large. Max 5MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImagePreview(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleWhatsApp = useCallback(() => {
     const whatsappNumber = settings?.contact?.whatsapp;
     if (!whatsappNumber) {
-      toast.error("WhatsApp contact is not configured by admin.");
+      toast.error("WhatsApp contact not configured by admin.");
       return;
     }
 
@@ -39,12 +56,12 @@ const Customize = () => {
       return;
     }
 
-    const message = `Hello HRS3! I'd like to request a custom product.\n\n*My Name:* ${form.name}\n*Product Type:* ${form.productType}\n*Details:* ${form.description}`;
+    const message = `Hello HRS3! I'd like to request a custom product.\n\n*My Name:* ${form.name}\n*Product Type:* ${form.productType}\n*Details:* ${form.description}${imagePreview ? "\n\n(I have a reference image ready to share)" : ""}`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\+/g, "")}?text=${encodedMessage}`;
 
     window.open(whatsappUrl, "_blank");
-  }, [form, settings]);
+  }, [form, settings, imagePreview]);
 
   return (
     <PageShell>
@@ -103,6 +120,65 @@ const Customize = () => {
                   placeholder="COLORS, TEXT, REFERENCES, DEADLINE…"
                   className="w-full resize-none rounded-4xl border-2 border-zinc-100 bg-white px-6 py-4 text-xs font-black uppercase tracking-widest outline-none transition-colors focus:border-indigo-600"
                 />
+              </div>
+
+              <div className="space-y-4">
+                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-900">
+                  Reference Image (Optional)
+                </label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                {!imagePreview ? (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current.click()}
+                    className="flex w-full flex-col items-center justify-center gap-4 rounded-[2rem] border-2 border-dashed border-zinc-200 bg-white py-12 transition-all hover:border-indigo-600 hover:bg-indigo-50/30 group"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-50 group-hover:bg-indigo-100 transition-colors">
+                      <svg
+                        className="h-6 w-6 text-zinc-400 group-hover:text-indigo-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
+                        Upload Reference
+                      </p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 mt-1">
+                        PNG, JPG up to 5MB
+                      </p>
+                    </div>
+                  </button>
+                ) : (
+                  <div className="relative group aspect-video w-full overflow-hidden rounded-[2rem] border-2 border-zinc-100 bg-white">
+                    <img
+                      src={imagePreview}
+                      className="h-full w-full object-contain p-4"
+                      alt="Reference"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImagePreview(null)}
+                      className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/80 text-white backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button
