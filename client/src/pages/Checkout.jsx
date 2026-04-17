@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, PageContent } from "../components/PageShell";
+import { useCart } from "../context/CartContext";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
 const Checkout = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { cart: cartItems, total: subtotal } = useCart();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -19,37 +19,17 @@ const Checkout = () => {
   });
   const navigate = useNavigate();
 
-  const loadCart = useCallback(async () => {
-    try {
-      const { data } = await api.get("/cart");
-      setCartItems(Array.isArray(data?.items) ? data.items : []);
-      if (!data?.items || data.items.length === 0) {
-        navigate("/cart");
-      }
-    } catch (err) {
-      console.error("Checkout load error:", err);
-      navigate("/cart");
-    } finally {
-      setLoading(false);
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    loadCart();
-  }, [loadCart]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + (item.product?.price || 0) * item.quantity,
-    0,
-  );
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!cartItems.length) {
+      toast.error("Archive is empty");
+      return;
+    }
     try {
       const { data: order } = await api.post("/orders", {
         items: cartItems,
@@ -89,23 +69,6 @@ const Checkout = () => {
       toast.error(err.response?.data?.message || "Order failed");
     }
   };
-
-  if (loading) {
-    return (
-      <PageShell>
-        <PageHero
-          title="Finalize"
-          accent="Acquisition"
-          subtitle="Initializing secure gateway..."
-        />
-        <PageContent>
-          <div className="flex justify-center py-20">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-100 border-t-black" />
-          </div>
-        </PageContent>
-      </PageShell>
-    );
-  }
 
   return (
     <PageShell>
@@ -271,12 +234,12 @@ const Checkout = () => {
                           {item.product?.name}
                         </p>
                         <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
-                          {item.size} × {item.quantity}
+                          {item.size || "M"} × {item.qty}
                         </p>
                       </div>
                     </div>
                     <p className="text-xs font-black text-zinc-400">
-                      ₹{item.product?.price * item.quantity}
+                      ₹{(item.product?.price || 0) * (item.qty || 0)}
                     </p>
                   </div>
                 ))}

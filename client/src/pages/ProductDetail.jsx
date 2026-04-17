@@ -53,9 +53,41 @@ const ProductDetail = () => {
   }, []);
 
   const relatedProducts = useMemo(() => {
-    if (!Array.isArray(allProducts)) return [];
-    return allProducts.filter((p) => p._id !== id).slice(0, 4);
-  }, [allProducts, id]);
+    if (!Array.isArray(allProducts) || !product) return [];
+
+    return allProducts
+      .filter((p) => p._id !== id)
+      .map((p) => {
+        let score = 0;
+
+        // Check for category matches
+        const productCats = Array.isArray(product.category)
+          ? product.category
+          : [product.category];
+        const pCats = Array.isArray(p.category) ? p.category : [p.category];
+
+        productCats.forEach((cat) => {
+          if (pCats.includes(cat)) score += 2;
+        });
+
+        // Check for subCategory matches
+        const productSubCats = Array.isArray(product.subCategory)
+          ? product.subCategory
+          : [product.subCategory];
+        const pSubCats = Array.isArray(p.subCategory)
+          ? p.subCategory
+          : [p.subCategory];
+
+        productSubCats.forEach((sub) => {
+          if (pSubCats.includes(sub)) score += 3;
+        });
+
+        return { ...p, score };
+      })
+      .filter((p) => p.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4);
+  }, [allProducts, product, id]);
 
   const handleImage = useCallback((img) => {
     const url = img?.url || (typeof img === "string" ? img : "");

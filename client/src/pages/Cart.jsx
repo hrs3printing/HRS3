@@ -1,82 +1,40 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { memo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PageShell, PageHero, PageContent } from "../components/PageShell";
-import api from "../api/axios";
+import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { cart, updateQty, removeFromCart, total, refreshCart } = useCart();
   const navigate = useNavigate();
 
-  const loadCart = useCallback(async () => {
+  const handleUpdateQty = async (id, type) => {
     try {
-      const { data } = await api.get("/cart");
-      setCartItems(Array.isArray(data?.items) ? data.items : []);
-    } catch (err) {
-      console.error("Cart load error:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCart();
-  }, [loadCart]);
-
-  const updateQty = async (id, size, type) => {
-    try {
-      await api.put("/cart/update", { productId: id, type });
-      loadCart();
+      await updateQty(id, type);
     } catch (err) {
       toast.error("Update failed");
     }
   };
 
-  const removeItem = async (id, size) => {
+  const handleRemove = async (id) => {
     try {
-      await api.delete("/cart/remove", { data: { productId: id } });
+      await removeFromCart(id);
       toast.success("Item removed from archive");
-      loadCart();
     } catch (err) {
       toast.error("Removal failed");
     }
   };
-
-  const subtotal = Array.isArray(cartItems)
-    ? cartItems.reduce(
-        (acc, item) => acc + (item.product?.price || 0) * (item.qty || 0),
-        0,
-      )
-    : 0;
-
-  if (loading) {
-    return (
-      <PageShell>
-        <PageHero
-          title="Your"
-          accent="Archive"
-          subtitle="Loading contents..."
-        />
-        <PageContent>
-          <div className="flex justify-center py-20">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-100 border-t-black" />
-          </div>
-        </PageContent>
-      </PageShell>
-    );
-  }
 
   return (
     <PageShell>
       <PageHero
         title="Your"
         accent="Archive"
-        subtitle={`${cartItems.length} curated pieces selected`}
+        subtitle={`${cart.length} curated pieces selected`}
       />
 
       <PageContent>
-        {cartItems.length === 0 ? (
+        {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 space-y-8 animate-fadeUp">
             <div className="w-24 h-24 rounded-full bg-zinc-50 flex items-center justify-center border-2 border-dashed border-zinc-200">
               <svg
@@ -119,9 +77,9 @@ const Cart = () => {
                 <div className="h-px flex-1 bg-zinc-100" />
               </div>
 
-              {cartItems.map((item, idx) => (
+              {cart.map((item, idx) => (
                 <div
-                  key={`${item.product?._id}-${item.size}`}
+                  key={`${item.product?._id}`}
                   className="group flex gap-6 sm:gap-10 pb-8 border-b border-zinc-100 last:border-0"
                 >
                   <Link
@@ -147,9 +105,7 @@ const Cart = () => {
                           </p>
                         </div>
                         <button
-                          onClick={() =>
-                            removeItem(item.product?._id, item.size)
-                          }
+                          onClick={() => handleRemove(item.product?._id)}
                           className="text-zinc-300 hover:text-red-500 transition-colors"
                         >
                           <svg
@@ -171,15 +127,6 @@ const Cart = () => {
                       <div className="flex items-center gap-8">
                         <div className="space-y-1">
                           <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">
-                            Size
-                          </p>
-                          <p className="text-xs font-black uppercase text-zinc-900">
-                            {item.size}
-                          </p>
-                        </div>
-                        <div className="h-8 w-px bg-zinc-100" />
-                        <div className="space-y-1">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">
                             Price
                           </p>
                           <p className="text-xs font-black text-zinc-900">
@@ -193,7 +140,7 @@ const Cart = () => {
                       <div className="flex items-center gap-6 bg-zinc-50 px-4 py-2 rounded-xl border border-zinc-100">
                         <button
                           onClick={() =>
-                            updateQty(item.product?._id, item.size, "dec")
+                            handleUpdateQty(item.product?._id, "dec")
                           }
                           className="text-lg font-black text-zinc-400 hover:text-black transition-colors"
                         >
@@ -204,7 +151,7 @@ const Cart = () => {
                         </span>
                         <button
                           onClick={() =>
-                            updateQty(item.product?._id, item.size, "inc")
+                            handleUpdateQty(item.product?._id, "inc")
                           }
                           className="text-lg font-black text-zinc-400 hover:text-black transition-colors"
                         >
@@ -236,7 +183,7 @@ const Cart = () => {
                       Subtotal
                     </span>
                     <span className="text-sm font-black uppercase tracking-tight">
-                      ₹{subtotal}
+                      ₹{total}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -253,7 +200,7 @@ const Cart = () => {
                       Total
                     </span>
                     <span className="text-2xl font-black tracking-tighter text-indigo-500">
-                      ₹{subtotal}
+                      ₹{total}
                     </span>
                   </div>
                 </div>

@@ -67,27 +67,46 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const updateQty = useCallback(async (productId, type) => {
+    // Optimistic update
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.product?._id === productId) {
+          const newQty =
+            type === "inc" ? item.qty + 1 : Math.max(1, item.qty - 1);
+          return { ...item, qty: newQty };
+        }
+        return item;
+      }),
+    );
+
     try {
       const data = await updateItem(productId, type);
       setCart([...(data.items || [])]);
     } catch (error) {
       if (import.meta.env.DEV) console.error("Update cart error:", error);
+      // Rollback on error
+      void fetchCart();
     }
-  }, []);
+  }, [fetchCart]);
 
   const removeFromCart = useCallback(async (productId) => {
+    // Optimistic update
+    setCart((prev) => prev.filter((item) => item.product?._id !== productId));
+
     try {
       const data = await removeItem(productId);
       setCart([...(data.items || [])]);
     } catch (error) {
       if (import.meta.env.DEV) console.error("Remove item error:", error);
+      // Rollback on error
+      void fetchCart();
     }
-  }, []);
+  }, [fetchCart]);
 
   const total = useMemo(
     () =>
       cart.reduce(
-        (sum, item) => sum + (item.product?.price || 0) * item.qty,
+        (sum, item) => sum + (item.product?.price || 0) * (item.qty || 0),
         0,
       ),
     [cart],
