@@ -5,6 +5,7 @@ import {
   updateAdminCategory,
   deleteAdminCategory,
   uploadAdminImages,
+  reorderAdminCategories,
 } from "../api/adminApi";
 import { getCategories } from "../api/productApi";
 
@@ -219,6 +220,33 @@ const CategoryManager = () => {
       load();
     } catch {
       toast.error("Delete failed");
+    }
+  };
+
+  const handleReorder = async (direction, index) => {
+    const newCategories = [...categories];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= newCategories.length) return;
+
+    // Swap items
+    const temp = newCategories[index];
+    newCategories[index] = newCategories[targetIndex];
+    newCategories[targetIndex] = temp;
+
+    // Optimistically update UI
+    setCategories(newCategories);
+
+    try {
+      const orders = newCategories.map((cat, i) => ({
+        id: cat._id,
+        order: i,
+      }));
+      await reorderAdminCategories(orders);
+      toast.success("Sequence updated");
+    } catch {
+      toast.error("Failed to update sequence");
+      load(); // Rollback
     }
   };
 
@@ -504,6 +532,7 @@ const CategoryManager = () => {
         <table className="w-full min-w-xl text-left text-sm">
           <thead className="border-b border-zinc-800 bg-zinc-950/50 text-xs uppercase text-zinc-500 font-semibold tracking-wider">
             <tr>
+              <th className="px-3 py-3 w-16 sm:px-6 sm:py-4">Seq</th>
               <th className="px-3 py-3 sm:px-6 sm:py-4">Image</th>
               <th className="px-3 py-3 sm:px-6 sm:py-4">Category</th>
               <th className="px-3 py-3 sm:px-6 sm:py-4">Sub-categories</th>
@@ -511,8 +540,50 @@ const CategoryManager = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
-            {categories.map((cat) => (
+            {categories.map((cat, idx) => (
               <tr key={cat._id} className="hover:bg-zinc-800/30 transition">
+                <td className="px-3 py-3 sm:px-6 sm:py-4">
+                  <div className="flex flex-col items-center gap-1">
+                    <button
+                      onClick={() => handleReorder("up", idx)}
+                      disabled={idx === 0}
+                      className="text-zinc-500 hover:text-white disabled:opacity-0 transition"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M5 15l7-7 7 7"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleReorder("down", idx)}
+                      disabled={idx === categories.length - 1}
+                      className="text-zinc-500 hover:text-white disabled:opacity-0 transition"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
                 <td className="px-3 py-3 sm:px-6 sm:py-4">
                   {cat.image ? (
                     <img

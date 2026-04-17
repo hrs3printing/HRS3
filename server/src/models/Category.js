@@ -22,6 +22,7 @@ const categorySchema = new mongoose.Schema(
       public_id: String,
     },
     subCategories: [subCategorySchema],
+    order: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

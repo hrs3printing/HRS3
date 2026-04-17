@@ -38,6 +38,8 @@ export const updateAdminCategory = (id, body) =>
   api.put(`/admin/categories/${id}`, body).then((r) => r.data);
 export const deleteAdminCategory = (id) =>
   api.delete(`/admin/categories/${id}`).then((r) => r.data);
+export const reorderAdminCategories = (orders) =>
+  api.patch("/admin/categories/reorder", { orders }).then((r) => r.data);
 
 export const uploadAdminImages = (formData) =>
   api

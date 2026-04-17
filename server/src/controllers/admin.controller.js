@@ -62,6 +62,25 @@ export const deleteCategory = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "Category deleted" });
 });
 
+export const updateCategoryOrder = asyncHandler(async (req, res) => {
+  const { orders } = req.body; // Array of { id, order }
+
+  if (!Array.isArray(orders)) {
+    throw new AppError("Orders array is required", 400);
+  }
+
+  const bulkOps = orders.map((item) => ({
+    updateOne: {
+      filter: { _id: item.id },
+      update: { $set: { order: item.order } },
+    },
+  }));
+
+  await Category.bulkWrite(bulkOps);
+
+  res.json({ success: true, message: "Order updated" });
+});
+
 export const getStats = asyncHandler(async (_req, res) => {
   const [productCount, orderCount, userCount, revenueAgg] = await Promise.all([
     Product.countDocuments(),

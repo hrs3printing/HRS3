@@ -21,6 +21,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  updateCategoryOrder,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -75,6 +76,7 @@ router.delete("/hero/:id", deleteHeroSlide);
 router.post("/categories", createCategory);
 router.put("/categories/:id", updateCategory);
 router.delete("/categories/:id", deleteCategory);
+router.patch("/categories/reorder", updateCategoryOrder);
 
 // ⚙️ SETTINGS
 router.get("/settings", getSettings);

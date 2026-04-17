@@ -14,7 +14,7 @@ export const getProducts = asyncHandler(async (_req, res) => {
 
 // GET ALL CATEGORIES
 export const getCategoriesPublic = asyncHandler(async (_req, res) => {
-  const categories = await Category.find();
+  const categories = await Category.find().sort({ order: 1 });
   res.json(categories);
 });
 
