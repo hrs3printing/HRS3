@@ -103,7 +103,8 @@ const ProductDetail = () => {
               {product.images?.length > 1 && (
                 <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
                   {product.images.map((img, i) => {
-                    const url = img?.url || (typeof img === "string" ? img : "");
+                    const url =
+                      img?.url || (typeof img === "string" ? img : "");
                     return (
                       <button
                         key={i}
@@ -132,7 +133,9 @@ const ProductDetail = () => {
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <span className="text-indigo-600 text-[10px] font-black uppercase tracking-[0.3em]">
-                      {product.category?.[0] || product.category || "Limited Drop"}
+                      {product.category?.[0] ||
+                        product.category ||
+                        "Limited Drop"}
                     </span>
                     <div className="h-px w-8 bg-indigo-100" />
                   </div>
@@ -146,31 +149,36 @@ const ProductDetail = () => {
               </div>
 
               {/* SIZE SELECTOR */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                    Select Size
-                  </span>
-                  <button className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-black transition-colors underline underline-offset-4">
-                    Size Guide
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {["S", "M", "L", "XL", "XXL"].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => handleSize(s)}
-                      className={`flex h-14 w-14 items-center justify-center rounded-2xl text-xs font-black uppercase transition-all duration-300 ${
-                        size === s
-                          ? "bg-black text-white shadow-xl shadow-black/20 scale-105"
-                          : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-100"
-                      }`}
-                    >
-                      {s}
+              {product.size && product.size.length > 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      {product.category?.[0]?.toLowerCase().includes("cup") ||
+                      product.category?.[0]?.toLowerCase().includes("bottle")
+                        ? "Select Volume"
+                        : "Select Size"}
+                    </span>
+                    <button className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-black transition-colors underline underline-offset-4">
+                      Size Guide
                     </button>
-                  ))}
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {product.size.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => handleSize(s)}
+                        className={`flex min-w-[3.5rem] h-14 px-4 items-center justify-center rounded-2xl text-xs font-black uppercase transition-all duration-300 ${
+                          size === s
+                            ? "bg-black text-white shadow-xl shadow-black/20 scale-105"
+                            : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-100"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* ACTIONS */}
               <div className="flex flex-col sm:flex-row gap-4">
@@ -181,7 +189,9 @@ const ProductDetail = () => {
                   Add to Archive
                 </button>
                 <button
-                  onClick={() => toast.success("Direct Acquisition coming soon")}
+                  onClick={() =>
+                    toast.success("Direct Acquisition coming soon")
+                  }
                   className="flex-1 bg-zinc-100 text-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-200 transition-all active:scale-95 border border-zinc-200"
                 >
                   Direct Acquisition

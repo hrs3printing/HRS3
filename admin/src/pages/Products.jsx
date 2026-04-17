@@ -370,16 +370,38 @@ const Products = () => {
             }
           />
 
-          <label className="block text-sm">
-            <span className="text-zinc-400">Sizes (comma-separated)</span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-zinc-400">Sizes</span>
+              <div className="flex gap-2">
+                {[
+                  { label: "Apparel", val: "S,M,L,XL,XXL" },
+                  { label: "Footwear", val: "7,8,9,10,11" },
+                  { label: "Cup/Volume", val: "250ml,500ml,750ml" },
+                  { label: "One Size", val: "OS" },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() =>
+                      setForm((f) => ({ ...f, sizeText: preset.val }))
+                    }
+                    className="rounded bg-zinc-800 px-2 py-1 text-[10px] font-bold text-zinc-500 transition hover:bg-zinc-700 hover:text-zinc-300"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <input
-              className="mt-1 w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-zinc-500"
+              placeholder="e.g. S, M, L or 500ml, 1L"
+              className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-zinc-500"
               value={form.sizeText}
               onChange={(e) =>
                 setForm((f) => ({ ...f, sizeText: e.target.value }))
               }
             />
-          </label>
+          </div>
 
           <label className="block text-sm">
             <span className="text-zinc-400">Description</span>
