@@ -17,10 +17,11 @@ const CategoryManager = () => {
   const [form, setForm] = useState({
     name: "",
     image: null,
-    subCategories: [], // Array of { name, image }
+    subCategories: [], // Array of { name, image, subCategories: [] }
   });
   const [subInput, setSubInput] = useState("");
   const [subImage, setSubImage] = useState(null);
+  const [parentSubName, setParentSubName] = useState(""); // For nested sub-categories
 
   const handleSubImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -142,27 +143,61 @@ const CategoryManager = () => {
   const handleSubAdd = () => {
     if (!subInput.trim()) return;
 
-    // Check if sub already exists
-    if (form.subCategories.some((s) => s.name === subInput.trim())) {
-      return toast.error("Sub-category already exists");
+    if (parentSubName) {
+      // Add nested sub-category
+      setForm((f) => {
+        const updatedSubs = f.subCategories.map((s) => {
+          if (s.name === parentSubName) {
+            return {
+              ...s,
+              subCategories: [
+                ...(s.subCategories || []),
+                { name: subInput.trim(), image: subImage },
+              ],
+            };
+          }
+          return s;
+        });
+        return { ...f, subCategories: updatedSubs };
+      });
+    } else {
+      // Add top-level sub-category
+      if (form.subCategories.some((s) => s.name === subInput.trim())) {
+        return toast.error("Sub-category already exists");
+      }
+      setForm((f) => ({
+        ...f,
+        subCategories: [
+          ...f.subCategories,
+          { name: subInput.trim(), image: subImage, subCategories: [] },
+        ],
+      }));
     }
 
-    setForm((f) => ({
-      ...f,
-      subCategories: [
-        ...f.subCategories,
-        { name: subInput.trim(), image: subImage },
-      ],
-    }));
     setSubInput("");
     setSubImage(null);
+    setParentSubName("");
   };
 
-  const removeSub = (name) => {
-    setForm((f) => ({
-      ...f,
-      subCategories: f.subCategories.filter((s) => s.name !== name),
-    }));
+  const removeSub = (name, parentName = null) => {
+    setForm((f) => {
+      if (parentName) {
+        const updatedSubs = f.subCategories.map((s) => {
+          if (s.name === parentName) {
+            return {
+              ...s,
+              subCategories: s.subCategories.filter((sub) => sub.name !== name),
+            };
+          }
+          return s;
+        });
+        return { ...f, subCategories: updatedSubs };
+      }
+      return {
+        ...f,
+        subCategories: f.subCategories.filter((s) => s.name !== name),
+      };
+    });
   };
 
   const startEdit = (cat) => {
@@ -224,94 +259,139 @@ const CategoryManager = () => {
                 Sub-categories (Add one by one with image)
               </span>
               <div className="mt-1.5 space-y-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                <div className="flex flex-wrap gap-2">
+                <div className="space-y-3">
                   {form.subCategories.map((s) => (
-                    <div
-                      key={s.name}
-                      className="group relative flex items-center gap-2 rounded-lg bg-zinc-800 p-1.5 pr-3 text-[10px] font-bold text-zinc-300"
-                    >
-                      {s.image?.url && (
-                        <img
-                          src={s.image.url}
-                          className="h-6 w-6 rounded object-cover"
-                          alt=""
-                        />
+                    <div key={s.name} className="space-y-2">
+                      <div className="group relative flex items-center gap-2 rounded-lg bg-zinc-800 p-1.5 pr-3 text-[10px] font-bold text-zinc-300">
+                        {s.image?.url && (
+                          <img
+                            src={s.image.url}
+                            className="h-6 w-6 rounded object-cover"
+                            alt=""
+                          />
+                        )}
+                        <span>{s.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSub(s.name)}
+                          className="ml-auto text-zinc-500 hover:text-white"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      {/* Nested sub-categories display */}
+                      {s.subCategories?.length > 0 && (
+                        <div className="ml-6 flex flex-wrap gap-2">
+                          {s.subCategories.map((sub) => (
+                            <div
+                              key={sub.name}
+                              className="flex items-center gap-1.5 rounded bg-zinc-900 border border-zinc-800 px-2 py-1 text-[9px] text-zinc-400"
+                            >
+                              {sub.image?.url && (
+                                <img
+                                  src={sub.image.url}
+                                  className="h-4 w-4 rounded-sm object-cover"
+                                  alt=""
+                                />
+                              )}
+                              <span>{sub.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeSub(sub.name, s.name)}
+                                className="text-zinc-600 hover:text-white"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       )}
-                      <span>{s.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeSub(s.name)}
-                        className="text-zinc-500 hover:text-white"
-                      >
-                        ×
-                      </button>
                     </div>
                   ))}
                 </div>
 
                 <div className="flex flex-col gap-3 pt-3 border-t border-zinc-800">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
-                      {subImage ? (
-                        <>
-                          <img
-                            src={subImage.url}
-                            className="h-full w-full object-cover"
-                            alt=""
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setSubImage(null)}
-                            className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <span className="text-white text-lg">×</span>
-                          </button>
-                        </>
-                      ) : (
-                        <label className="flex h-full w-full cursor-pointer items-center justify-center hover:bg-zinc-800 transition">
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleSubImageUpload}
-                            disabled={uploading}
-                          />
-                          <svg
-                            className="h-4 w-4 text-zinc-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                        </label>
-                      )}
-                    </div>
-                    <input
-                      placeholder="Sub-category name..."
-                      className="flex-1 bg-transparent py-1 text-sm text-white outline-none"
-                      value={subInput}
-                      onChange={(e) => setSubInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleSubAdd();
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSubAdd}
-                      className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition disabled:opacity-50"
-                      disabled={!subInput.trim() || uploading}
+                  <div className="flex flex-col gap-2">
+                    <select
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-400 outline-none focus:border-zinc-700"
+                      value={parentSubName}
+                      onChange={(e) => setParentSubName(e.target.value)}
                     >
-                      Add
-                    </button>
+                      <option value="">No Parent (Top Level Sub)</option>
+                      {form.subCategories.map((s) => (
+                        <option key={s.name} value={s.name}>
+                          Parent: {s.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+                        {subImage ? (
+                          <>
+                            <img
+                              src={subImage.url}
+                              className="h-full w-full object-cover"
+                              alt=""
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setSubImage(null)}
+                              className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <span className="text-white text-lg">×</span>
+                            </button>
+                          </>
+                        ) : (
+                          <label className="flex h-full w-full cursor-pointer items-center justify-center hover:bg-zinc-800 transition">
+                            <input
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={handleSubImageUpload}
+                              disabled={uploading}
+                            />
+                            <svg
+                              className="h-4 w-4 text-zinc-500"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                          </label>
+                        )}
+                      </div>
+                      <input
+                        placeholder={
+                          parentSubName
+                            ? "Nested sub name..."
+                            : "Sub-category name..."
+                        }
+                        className="flex-1 bg-transparent py-1 text-sm text-white outline-none"
+                        value={subInput}
+                        onChange={(e) => setSubInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSubAdd();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSubAdd}
+                        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition disabled:opacity-50"
+                        disabled={!subInput.trim() || uploading}
+                      >
+                        Add
+                      </button>
+                    </div>
                   </div>
                   {uploading && (
                     <p className="text-[10px] text-indigo-400 animate-pulse">

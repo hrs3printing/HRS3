@@ -306,12 +306,23 @@ const HierarchicalCategorySelector = ({
               >
                 <option value="">Quick Add Sub-category...</option>
                 {(categoryDataMap[selectedMainCat]?.subCategories || []).map(
-                  (s) => (
-                    <option key={s.name} value={s.name}>
-                      {s.name}{" "}
-                      {selectedSubCategories.includes(s.name) ? "✓" : ""}
-                    </option>
-                  ),
+                  (s) => {
+                    const sName = typeof s === "string" ? s : s.name;
+                    const children = s.subCategories || [];
+
+                    return (
+                      <optgroup key={sName} label={sName}>
+                        <option value={sName}>
+                          {sName} (Main {sName})
+                        </option>
+                        {children.map((child) => (
+                          <option key={child.name} value={child.name}>
+                            -- {child.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    );
+                  },
                 )}
                 <option
                   value="ADD_NEW_SUB"
@@ -371,19 +382,30 @@ const HierarchicalCategorySelector = ({
 
           {/* Selected Subcategory Pills for THIS main category */}
           <div className="flex flex-wrap gap-2 pt-1">
-            {(categoryDataMap[selectedMainCat]?.subCategories || [])
-              .filter((s) => selectedSubCategories.includes(s.name))
-              .map((s) => (
+            {(() => {
+              const allSubs = [];
+              const mainSubs =
+                categoryDataMap[selectedMainCat]?.subCategories || [];
+              mainSubs.forEach((s) => {
+                const sName = typeof s === "string" ? s : s.name;
+                if (selectedSubCategories.includes(sName)) allSubs.push(sName);
+                (s.subCategories || []).forEach((child) => {
+                  if (selectedSubCategories.includes(child.name))
+                    allSubs.push(child.name);
+                });
+              });
+
+              return allSubs.map((sName) => (
                 <div
-                  key={s.name}
+                  key={sName}
                   className="flex items-center gap-2 rounded-lg border border-indigo-400/30 bg-indigo-500/10 px-3 py-1.5 text-[10px] font-bold text-indigo-400"
                 >
-                  {s.name}
+                  {sName}
                   <button
                     type="button"
                     onClick={() =>
                       onSubCategoryChange(
-                        selectedSubCategories.filter((sub) => sub !== s.name),
+                        selectedSubCategories.filter((sub) => sub !== sName),
                       )
                     }
                     className="flex h-4 w-4 items-center justify-center rounded-full transition-colors hover:bg-indigo-400/20"
@@ -403,7 +425,8 @@ const HierarchicalCategorySelector = ({
                     </svg>
                   </button>
                 </div>
-              ))}
+              ));
+            })()}
           </div>
         </div>
       )}

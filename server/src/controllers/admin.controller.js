@@ -18,18 +18,23 @@ export const updateCategory = asyncHandler(async (req, res) => {
   const oldCategory = await Category.findById(req.params.id);
   if (!oldCategory) throw new AppError("Category not found", 404);
 
+  // Helper to collect IDs recursively
+  const collectIds = (subs, arr) => {
+    subs?.forEach((sub) => {
+      if (sub.image?.public_id) arr.push(sub.image.public_id);
+      if (sub.subCategories) collectIds(sub.subCategories, arr);
+    });
+  };
+
   // 1. Identify public_ids to cleanup
   const oldPublicIds = [];
-  if (oldCategory.image?.public_id) oldPublicIds.push(oldCategory.image.public_id);
-  oldCategory.subCategories?.forEach((sub) => {
-    if (sub.image?.public_id) oldPublicIds.push(sub.image.public_id);
-  });
+  if (oldCategory.image?.public_id)
+    oldPublicIds.push(oldCategory.image.public_id);
+  collectIds(oldCategory.subCategories, oldPublicIds);
 
   const newPublicIds = [];
   if (req.body.image?.public_id) newPublicIds.push(req.body.image.public_id);
-  req.body.subCategories?.forEach((sub) => {
-    if (sub.image?.public_id) newPublicIds.push(sub.image.public_id);
-  });
+  collectIds(req.body.subCategories, newPublicIds);
 
   const idsToDelete = oldPublicIds.filter((id) => !newPublicIds.includes(id));
 
@@ -99,56 +104,56 @@ export const updateProduct = asyncHandler(async (req, res) => {
   const oldProduct = await Product.findById(req.params.id);
   if (!oldProduct) throw new AppError("Product not found", 404);
 
-    // 1. Transaction-like data consistency check
-    // Collect all public_ids currently stored in the DB
-    const oldPublicIds = [];
-    if (oldProduct.image?.public_id)
-      oldPublicIds.push(oldProduct.image.public_id);
-    if (oldProduct.images) {
-      oldProduct.images.forEach((img) => {
-        if (img.public_id) oldPublicIds.push(img.public_id);
-      });
-    }
-
-    // 2. Identify new public_ids from the update request
-    const newPublicIds = [];
-    if (req.body.image?.public_id) newPublicIds.push(req.body.image.public_id);
-    if (req.body.images) {
-      req.body.images.forEach((img) => {
-        if (img.public_id) newPublicIds.push(img.public_id);
-      });
-    }
-
-    // 3. Batch find IDs that were in old but are NOT in the new payload (removed images)
-    const idsToDelete = oldPublicIds.filter((id) => !newPublicIds.includes(id));
-
-    // 4. Perform Cloudinary cleanup for removed images
-    if (idsToDelete.length > 0) {
-      console.log(
-        `[Admin Update] Cleaning up ${idsToDelete.length} removed images for Product: ${oldProduct._id}`,
-      );
-
-      // Verification step: using batch deletion for efficiency
-      try {
-        const cleanupStatus = await deleteFromCloudinaryBatch(idsToDelete);
-        console.log(
-          `[Admin Update] Cloudinary cleanup verification for ${oldProduct._id}: Success`,
-        );
-      } catch (err) {
-        // Log errors without failing the main product update (Non-blocking cleanup policy)
-        console.error(
-          `[Admin Update Error] Cloudinary cleanup verification failed: ${err.message}`,
-        );
-      }
-    }
-
-    // 5. Apply the update to the database record
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
+  // 1. Transaction-like data consistency check
+  // Collect all public_ids currently stored in the DB
+  const oldPublicIds = [];
+  if (oldProduct.image?.public_id)
+    oldPublicIds.push(oldProduct.image.public_id);
+  if (oldProduct.images) {
+    oldProduct.images.forEach((img) => {
+      if (img.public_id) oldPublicIds.push(img.public_id);
     });
+  }
 
-    res.json(product);
+  // 2. Identify new public_ids from the update request
+  const newPublicIds = [];
+  if (req.body.image?.public_id) newPublicIds.push(req.body.image.public_id);
+  if (req.body.images) {
+    req.body.images.forEach((img) => {
+      if (img.public_id) newPublicIds.push(img.public_id);
+    });
+  }
+
+  // 3. Batch find IDs that were in old but are NOT in the new payload (removed images)
+  const idsToDelete = oldPublicIds.filter((id) => !newPublicIds.includes(id));
+
+  // 4. Perform Cloudinary cleanup for removed images
+  if (idsToDelete.length > 0) {
+    console.log(
+      `[Admin Update] Cleaning up ${idsToDelete.length} removed images for Product: ${oldProduct._id}`,
+    );
+
+    // Verification step: using batch deletion for efficiency
+    try {
+      const cleanupStatus = await deleteFromCloudinaryBatch(idsToDelete);
+      console.log(
+        `[Admin Update] Cloudinary cleanup verification for ${oldProduct._id}: Success`,
+      );
+    } catch (err) {
+      // Log errors without failing the main product update (Non-blocking cleanup policy)
+      console.error(
+        `[Admin Update Error] Cloudinary cleanup verification failed: ${err.message}`,
+      );
+    }
+  }
+
+  // 5. Apply the update to the database record
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.json(product);
 });
 
 export const deleteProduct = asyncHandler(async (req, res) => {
@@ -156,12 +161,12 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id);
   if (!product) throw new AppError("Product not found", 404);
 
-    // Status report for the admin
-    res.json({
-      success: true,
-      message: "Product and associated Cloudinary assets successfully removed.",
-      id: req.params.id,
-    });
+  // Status report for the admin
+  res.json({
+    success: true,
+    message: "Product and associated Cloudinary assets successfully removed.",
+    id: req.params.id,
+  });
 });
 
 // 🎞️ HERO SLIDES
@@ -203,29 +208,26 @@ export const getSettings = asyncHandler(async (_req, res) => {
 export const updateSettings = asyncHandler(async (req, res) => {
   let settings = await Settings.findOne();
 
-    // Cleanup old logo if it's being replaced
-    if (
-      settings?.logo?.public_id &&
-      req.body.logo?.public_id &&
-      settings.logo.public_id !== req.body.logo.public_id
-    ) {
-      try {
-        await deleteFromCloudinaryBatch([settings.logo.public_id]);
-      } catch (err) {
-        console.error(
-          "[Settings Update] Old logo cleanup failed:",
-          err.message,
-        );
-      }
+  // Cleanup old logo if it's being replaced
+  if (
+    settings?.logo?.public_id &&
+    req.body.logo?.public_id &&
+    settings.logo.public_id !== req.body.logo.public_id
+  ) {
+    try {
+      await deleteFromCloudinaryBatch([settings.logo.public_id]);
+    } catch (err) {
+      console.error("[Settings Update] Old logo cleanup failed:", err.message);
     }
+  }
 
-    if (!settings) {
-      settings = await Settings.create(req.body);
-    } else {
-      settings = await Settings.findOneAndUpdate({}, req.body, {
-        new: true,
-        runValidators: true,
-      });
-    }
-    res.json(settings);
+  if (!settings) {
+    settings = await Settings.create(req.body);
+  } else {
+    settings = await Settings.findOneAndUpdate({}, req.body, {
+      new: true,
+      runValidators: true,
+    });
+  }
+  res.json(settings);
 });

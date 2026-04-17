@@ -1,6 +1,19 @@
 import mongoose from "mongoose";
 import { deleteFromCloudinaryBatch } from "../utils/cloudinary.js";
 
+const subCategorySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  image: {
+    url: String,
+    public_id: String,
+  },
+});
+
+// Add recursive sub-categories support
+subCategorySchema.add({
+  subCategories: [subCategorySchema],
+});
+
 const categorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
@@ -8,15 +21,7 @@ const categorySchema = new mongoose.Schema(
       url: String,
       public_id: String,
     },
-    subCategories: [
-      {
-        name: { type: String, required: true },
-        image: {
-          url: String,
-          public_id: String,
-        },
-      },
-    ],
+    subCategories: [subCategorySchema],
   },
   { timestamps: true },
 );
@@ -27,16 +32,16 @@ categorySchema.pre("findOneAndDelete", async function (next) {
     const docToDel = await this.model.findOne(this.getQuery());
     if (docToDel) {
       const publicIds = [];
-      if (docToDel.image?.public_id) {
-        publicIds.push(docToDel.image.public_id);
-      }
-      if (docToDel.subCategories) {
-        docToDel.subCategories.forEach((sub) => {
-          if (sub.image?.public_id) {
-            publicIds.push(sub.image.public_id);
-          }
+
+      const collectIds = (subs) => {
+        subs?.forEach((sub) => {
+          if (sub.image?.public_id) publicIds.push(sub.image.public_id);
+          if (sub.subCategories) collectIds(sub.subCategories);
         });
-      }
+      };
+
+      if (docToDel.image?.public_id) publicIds.push(docToDel.image.public_id);
+      collectIds(docToDel.subCategories);
 
       if (publicIds.length > 0) {
         await deleteFromCloudinaryBatch(publicIds);
