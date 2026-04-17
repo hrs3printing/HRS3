@@ -16,6 +16,7 @@ const ProductDetail = () => {
 
   const [selectedImage, setSelectedImage] = useState("");
   const [size, setSize] = useState("M");
+  const [color, setColor] = useState("");
   const [qty, setQty] = useState(1);
   const [openTab, setOpenTab] = useState("desc");
 
@@ -24,6 +25,9 @@ const ProductDetail = () => {
       try {
         const data = await getProductById(id);
         setProduct(data);
+        if (data?.colors?.length > 0) {
+          setColor(data.colors[0]);
+        }
         const mainImg =
           data?.images?.[0]?.url ||
           data?.images?.[0] ||
@@ -94,6 +98,7 @@ const ProductDetail = () => {
     setSelectedImage(url);
   }, []);
   const handleSize = useCallback((s) => setSize(s), []);
+  const handleColor = useCallback((c) => setColor(c), []);
   const handleQty = useCallback((type) => {
     setQty((prev) => (type === "inc" ? prev + 1 : Math.max(1, prev - 1)));
   }, []);
@@ -105,12 +110,12 @@ const ProductDetail = () => {
     if (!product) return;
 
     try {
-      await addToCart(product._id, qty);
+      await addToCart(product._id, qty, { size, color });
       toast.success("Added to cart");
     } catch {
       toast.error("Could not add to cart. Please sign in.");
     }
-  }, [addToCart, product, qty]);
+  }, [addToCart, product, qty, size, color]);
 
   if (!product)
     return (
@@ -181,6 +186,41 @@ const ProductDetail = () => {
                   ₹{product.price}
                 </p>
               </div>
+
+              {/* COLOR SELECTOR */}
+              {product.colors && product.colors.length > 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Select Color
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-4">
+                    {product.colors.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleColor(c)}
+                        className={`group relative flex items-center justify-center h-10 w-10 rounded-full transition-all duration-300 ${
+                          color === c
+                            ? "ring-2 ring-black ring-offset-4 scale-110 shadow-lg"
+                            : "ring-1 ring-zinc-200 hover:ring-zinc-400 hover:scale-105"
+                        }`}
+                        title={c}
+                      >
+                        <span
+                          className="h-full w-full rounded-full border border-black/5"
+                          style={{ backgroundColor: c }}
+                        />
+                        {color === c && (
+                          <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[8px] font-black uppercase px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                            {c}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* SIZE SELECTOR */}
               {product.size && product.size.length > 0 && (

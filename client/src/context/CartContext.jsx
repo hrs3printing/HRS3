@@ -56,9 +56,9 @@ export const CartProvider = ({ children }) => {
     return () => window.removeEventListener("userChanged", handleUserChange);
   }, [syncCartWithSession]);
 
-  const addToCart = useCallback(async (productId, qty = 1) => {
+  const addToCart = useCallback(async (productId, qty = 1, options = {}) => {
     try {
-      const data = await addItem(productId, qty);
+      const data = await addItem(productId, qty, options);
       setCart([...(data.items || [])]);
     } catch (error) {
       if (import.meta.env.DEV) console.error("Add to cart error:", error);

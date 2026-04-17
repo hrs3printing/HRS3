@@ -125,6 +125,28 @@ const Cart = () => {
                       </div>
 
                       <div className="flex items-center gap-8">
+                        {item.color && (
+                          <div className="space-y-1">
+                            <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">
+                              Color
+                            </p>
+                            <div
+                              className="h-4 w-4 rounded-full border border-zinc-200"
+                              style={{ backgroundColor: item.color }}
+                              title={item.color}
+                            />
+                          </div>
+                        )}
+                        {item.size && (
+                          <div className="space-y-1">
+                            <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">
+                              Size
+                            </p>
+                            <p className="text-[10px] font-black text-zinc-900 uppercase">
+                              {item.size}
+                            </p>
+                          </div>
+                        )}
                         <div className="space-y-1">
                           <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400">
                             Price

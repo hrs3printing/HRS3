@@ -17,6 +17,7 @@ const emptyForm = {
   category: [],
   subCategory: [],
   sizeText: "S,M,L,XL",
+  colorText: "",
   description: "",
 };
 
@@ -137,6 +138,10 @@ const Products = () => {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
+    const colors = form.colorText
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
     return {
       name: form.name.trim(),
       price: Number(form.price),
@@ -145,6 +150,7 @@ const Products = () => {
       category: form.category,
       subCategory: form.subCategory,
       size: size.length ? size : undefined,
+      colors: colors.length ? colors : undefined,
       description: form.description.trim() || undefined,
     };
   };
@@ -197,6 +203,7 @@ const Products = () => {
           ? [p.subCategory]
           : [],
       sizeText: (p.size || []).join(","),
+      colorText: (p.colors || []).join(","),
       description: p.description || "",
     });
     setShowForm(true);
@@ -399,6 +406,37 @@ const Products = () => {
               value={form.sizeText}
               onChange={(e) =>
                 setForm((f) => ({ ...f, sizeText: e.target.value }))
+              }
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-zinc-400">Colors (Hex codes)</span>
+              <div className="flex gap-2">
+                {[
+                  { label: "Classic", val: "#000000,#FFFFFF,#808080" },
+                  { label: "Vibrant", val: "#FF0000,#00FF00,#0000FF" },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() =>
+                      setForm((f) => ({ ...f, colorText: preset.val }))
+                    }
+                    className="rounded bg-zinc-800 px-2 py-1 text-[10px] font-bold text-zinc-500 transition hover:bg-zinc-700 hover:text-zinc-300"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <input
+              placeholder="e.g. #000000, #FFFFFF, #FF0000"
+              className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-zinc-500"
+              value={form.colorText}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, colorText: e.target.value }))
               }
             />
           </div>

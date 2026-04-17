@@ -2,23 +2,57 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import whiteShirt from "../assets/white-shirt.webp";
+import backWhiteShirt from "../assets/back-white.webp";
 import { getSettings } from "../api/productApi";
 
 const MockupPreview = () => {
-  const [userImage, setUserImage] = useState(null);
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [placement, setPlacement] = useState("full-front");
+  const [frontImage, setFrontImage] = useState(null);
+  const [backImage, setBackImage] = useState(null);
+  const [frontConfig, setFrontConfig] = useState({
+    scale: 1,
+    position: { x: 0, y: 0 },
+    placement: "full-front",
+  });
+  const [backConfig, setBackConfig] = useState({
+    scale: 1,
+    position: { x: 0, y: 0 },
+    placement: "full-back",
+  });
+  const [view, setView] = useState("front"); // "front" or "back"
   const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [fabrics, setFabrics] = useState([]);
+  const [printTypes, setPrintTypes] = useState([]);
+  const [selectedFabric, setSelectedFabric] = useState("");
+  const [selectedPrintType, setSelectedPrintType] = useState("");
   const fileInputRef = useRef(null);
+
+  const activeImage = view === "front" ? frontImage : backImage;
+  const activeConfig = view === "front" ? frontConfig : backConfig;
+
+  const setActiveConfig = (updater) => {
+    if (view === "front") {
+      setFrontConfig((prev) =>
+        typeof updater === "function" ? updater(prev) : updater,
+      );
+    } else {
+      setBackConfig((prev) =>
+        typeof updater === "function" ? updater(prev) : updater,
+      );
+    }
+  };
 
   useEffect(() => {
     (async () => {
       try {
         const settings = await getSettings();
         setWhatsappNumber(settings?.contact?.whatsapp || "");
+        setFabrics(settings?.fabrics || []);
+        setPrintTypes(settings?.printTypes || []);
+        if (settings?.fabrics?.length) setSelectedFabric(settings.fabrics[0]);
+        if (settings?.printTypes?.length)
+          setSelectedPrintType(settings.printTypes[0]);
       } catch (err) {
-        console.error("Failed to load whatsapp number", err);
+        console.error("Failed to load settings", err);
       }
     })();
   }, []);
@@ -36,16 +70,12 @@ const MockupPreview = () => {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
 
-        // Simple background removal: convert near-white pixels to transparent
-        // This is highly effective for logos with white backgrounds
         for (let i = 0; i < data.length; i += 4) {
           const r = data[i];
           const g = data[i + 1];
           const b = data[i + 2];
-
-          // If pixel is very bright (near white), make it transparent
           if (r > 240 && g > 240 && b > 240) {
-            data[i + 3] = 0; // Alpha channel to 0
+            data[i + 3] = 0;
           }
         }
 
@@ -68,46 +98,89 @@ const MockupPreview = () => {
         const processedImage = await processImageTransparency(
           event.target.result,
         );
-        setUserImage(processedImage);
-        handlePlacement("full-front");
+        if (view === "front") {
+          setFrontImage(processedImage);
+          handlePlacement("full-front");
+        } else {
+          setBackImage(processedImage);
+          handlePlacement("full-back");
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handlePlacement = (type) => {
-    setPlacement(type);
     const isMobile = window.innerWidth < 768;
+    let newScale = 1.1;
+    let newPosition = { x: 0, y: 0 };
 
-    if (type === "full-front") {
-      setScale(1.1);
-      setPosition({ x: 0, y: 0 });
-    } else if (type === "left-chest") {
-      setScale(isMobile ? 0.3 : 0.35);
-      setPosition({
+    if (type === "left-chest") {
+      newScale = isMobile ? 0.3 : 0.35;
+      newPosition = {
         x: isMobile ? -50 : -75,
         y: isMobile ? -60 : -90,
-      });
+      };
     }
+
+    setActiveConfig((prev) => ({
+      ...prev,
+      placement: type,
+      scale: newScale,
+      position: newPosition,
+    }));
+  };
+
+  const handleViewSwitch = (newView) => {
+    setView(newView);
   };
 
   const removeImage = () => {
-    setUserImage(null);
-    setPlacement("full-front");
+    if (view === "front") {
+      setFrontImage(null);
+      setFrontConfig({
+        scale: 1,
+        position: { x: 0, y: 0 },
+        placement: "full-front",
+      });
+    } else {
+      setBackImage(null);
+      setBackConfig({
+        scale: 1,
+        position: { x: 0, y: 0 },
+        placement: "full-back",
+      });
+    }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const sendToWhatsApp = () => {
+  const sendToWhatsApp = async () => {
     if (!whatsappNumber) {
       toast.error("WhatsApp contact not configured.");
       return;
     }
 
-    const message = `Hello HRS3! I have created a custom design preview using your Visual Lab. \n\nDesign Style: ${placement === "full-front" ? "Full Front Print" : "Left Chest Logo"}\n\nI am interested in getting this printed. Please let me know the process.`;
-    const encodedMessage = encodeURIComponent(message);
+    toast.loading("Preparing your design files...", { id: "wa-share" });
+
+    const frontMsg = frontImage
+      ? `\nFront Placement: ${frontConfig.placement === "full-front" ? "Full Front Print" : "Left Chest Logo"}`
+      : "";
+    const backMsg = backImage ? `\nBack Placement: Full Back Print` : "";
+    const fabricMsg = selectedFabric ? `\nFabric: ${selectedFabric}` : "";
+    const printMsg = selectedPrintType
+      ? `\nPrint Type: ${selectedPrintType}`
+      : "";
+
+    const baseMessage = `Hello HRS3! I have designed a custom T-shirt using your Visual Lab.${frontMsg}${backMsg}${fabricMsg}${printMsg}\n\nI'm interested in getting this printed. Please let me know the next steps.`;
+
+    const encodedMessage = encodeURIComponent(baseMessage);
     const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\+/g, "")}?text=${encodedMessage}`;
 
-    window.open(whatsappUrl, "_blank");
+    toast.success("Opening WhatsApp...", { id: "wa-share" });
+
+    setTimeout(() => {
+      window.open(whatsappUrl, "_blank");
+    }, 1000);
   };
 
   return (
@@ -121,19 +194,22 @@ const MockupPreview = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               className="relative w-full max-w-[500px] aspect-[4/5] bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-zinc-100"
             >
-              {/* T-Shirt Base Mockup (White Tee on Hanger) */}
-              <img
-                src={whiteShirt}
-                alt="White T-Shirt Mockup"
+              <motion.img
+                key={view}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                src={view === "front" ? whiteShirt : backWhiteShirt}
+                alt={`${view === "front" ? "Front" : "Back"} T-Shirt Mockup`}
                 className="w-full h-full object-cover brightness-105"
               />
 
-              {/* Overlay User Design */}
               <AnimatePresence>
-                {userImage && (
+                {activeImage && (
                   <motion.div
+                    key={view}
                     initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: scale }}
+                    animate={{ opacity: 1, scale: activeConfig.scale }}
                     exit={{ opacity: 0, scale: 0.5 }}
                     drag
                     dragConstraints={{
@@ -143,17 +219,20 @@ const MockupPreview = () => {
                       bottom: window.innerWidth < 768 ? 150 : 200,
                     }}
                     style={{
-                      x: position.x,
-                      y: position.y,
+                      x: activeConfig.position.x,
+                      y: activeConfig.position.y,
                     }}
                     onDragEnd={(_, info) =>
-                      setPosition({ x: info.offset.x, y: info.offset.y })
+                      setActiveConfig((prev) => ({
+                        ...prev,
+                        position: { x: info.offset.x, y: info.offset.y },
+                      }))
                     }
                     className="absolute top-[28%] left-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing z-10"
                   >
                     <div className="relative w-40 h-40 sm:w-56 sm:h-56 group/design flex items-center justify-center">
                       <img
-                        src={userImage}
+                        src={activeImage}
                         alt="User Design"
                         className="w-full h-full object-contain opacity-90 drop-shadow-sm brightness-105 contrast-110"
                       />
@@ -163,15 +242,12 @@ const MockupPreview = () => {
                 )}
               </AnimatePresence>
 
-              {/* Glassmorphism Badge */}
               <div className="absolute top-8 left-8 bg-white/80 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full shadow-lg">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
                   Interactive Preview
                 </span>
               </div>
             </motion.div>
-
-            {/* Decorative background glow */}
             <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px]" />
           </div>
 
@@ -198,10 +274,34 @@ const MockupPreview = () => {
             </div>
 
             <div className="space-y-8">
-              {!userImage ? (
+              <div className="flex gap-4 p-1.5 bg-zinc-100 rounded-2xl">
+                <button
+                  onClick={() => handleViewSwitch("front")}
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    view === "front"
+                      ? "bg-white text-black shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-600"
+                  }`}
+                >
+                  Front View
+                </button>
+                <button
+                  onClick={() => handleViewSwitch("back")}
+                  className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    view === "back"
+                      ? "bg-white text-black shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-600"
+                  }`}
+                >
+                  Back View
+                </button>
+              </div>
+
+              {!activeImage ? (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  key={`upload-${view}`}
                 >
                   <input
                     type="file"
@@ -230,7 +330,7 @@ const MockupPreview = () => {
                       </svg>
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 mb-2">
-                      Initialize Design
+                      Initialize {view === "front" ? "Front" : "Back"} Design
                     </span>
                     <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
                       PNG, JPG up to 5MB
@@ -238,50 +338,111 @@ const MockupPreview = () => {
                   </button>
                 </motion.div>
               ) : (
-                <div className="space-y-8">
-                  {/* PLACEMENT OPTIONS */}
+                <div className="space-y-8 animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() => handlePlacement("left-chest")}
-                      className={`flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all duration-300 ${
-                        placement === "left-chest"
-                          ? "border-indigo-600 bg-indigo-50/50 shadow-lg shadow-indigo-500/10"
-                          : "border-zinc-100 bg-white hover:border-zinc-200"
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
-                        <div className="w-3 h-3 bg-indigo-600 rounded-sm translate-x-[-8px] translate-y-[-4px]" />
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
-                        Left Chest
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => handlePlacement("full-front")}
-                      className={`flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all duration-300 ${
-                        placement === "full-front"
-                          ? "border-indigo-600 bg-indigo-50/50 shadow-lg shadow-indigo-500/10"
-                          : "border-zinc-100 bg-white hover:border-zinc-200"
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
-                        <div className="w-6 h-6 bg-indigo-600 rounded-md" />
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
-                        Full Front
-                      </span>
-                    </button>
+                    {view === "front" ? (
+                      <>
+                        <button
+                          onClick={() => handlePlacement("left-chest")}
+                          className={`flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all duration-300 ${
+                            activeConfig.placement === "left-chest"
+                              ? "border-indigo-600 bg-indigo-50/50 shadow-lg shadow-indigo-500/10"
+                              : "border-zinc-100 bg-white hover:border-zinc-200"
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
+                            <div className="w-3 h-3 bg-indigo-600 rounded-sm translate-x-[-8px] translate-y-[-4px]" />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
+                            Left Chest
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => handlePlacement("full-front")}
+                          className={`flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all duration-300 ${
+                            activeConfig.placement === "full-front"
+                              ? "border-indigo-600 bg-indigo-50/50 shadow-lg shadow-indigo-500/10"
+                              : "border-zinc-100 bg-white hover:border-zinc-200"
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
+                            <div className="w-6 h-6 bg-indigo-600 rounded-md" />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
+                            Full Front
+                          </span>
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => handlePlacement("full-back")}
+                        className={`col-span-2 flex flex-col items-center gap-3 p-6 rounded-3xl border-2 transition-all duration-300 ${
+                          activeConfig.placement === "full-back"
+                            ? "border-indigo-600 bg-indigo-50/50 shadow-lg shadow-indigo-500/10"
+                            : "border-zinc-100 bg-white hover:border-zinc-200"
+                        }`}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
+                          <div className="w-8 h-8 bg-indigo-600 rounded-md" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
+                          Full Back Print
+                        </span>
+                      </button>
+                    )}
                   </div>
 
-                  {/* CONTROL SLIDERS */}
                   <div className="space-y-6 bg-white p-8 rounded-[2rem] border border-zinc-100 shadow-sm">
+                    {/* FABRIC & PRINT SELECTION */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b border-zinc-50">
+                      {fabrics.length > 0 && (
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                            Select Fabric
+                          </label>
+                          <select
+                            value={selectedFabric}
+                            onChange={(e) => setSelectedFabric(e.target.value)}
+                            className="w-full bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:border-indigo-600 transition-all appearance-none cursor-pointer"
+                          >
+                            {fabrics.map((f) => (
+                              <option key={f} value={f}>
+                                {f}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {printTypes.length > 0 && (
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                            Print Technique
+                          </label>
+                          <select
+                            value={selectedPrintType}
+                            onChange={(e) =>
+                              setSelectedPrintType(e.target.value)
+                            }
+                            className="w-full bg-zinc-50 border border-zinc-100 rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest outline-none focus:border-indigo-600 transition-all appearance-none cursor-pointer"
+                          >
+                            {printTypes.map((t) => (
+                              <option key={t} value={t}>
+                                {t}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="space-y-4">
                       <div className="flex justify-between">
                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                           Scale Archive
                         </span>
                         <span className="text-[10px] font-black text-indigo-600">
-                          {Math.round(scale * 100)}%
+                          {Math.round(activeConfig.scale * 100)}%
                         </span>
                       </div>
                       <input
@@ -289,8 +450,13 @@ const MockupPreview = () => {
                         min="0.2"
                         max="2"
                         step="0.05"
-                        value={scale}
-                        onChange={(e) => setScale(parseFloat(e.target.value))}
+                        value={activeConfig.scale}
+                        onChange={(e) =>
+                          setActiveConfig((prev) => ({
+                            ...prev,
+                            scale: parseFloat(e.target.value),
+                          }))
+                        }
                         className="w-full accent-indigo-600"
                       />
                     </div>
@@ -298,29 +464,28 @@ const MockupPreview = () => {
                     <div className="flex flex-col sm:flex-row gap-4">
                       <button
                         onClick={removeImage}
-                        className="flex-1 py-4 bg-zinc-100 text-zinc-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-colors"
+                        className="w-full py-4 bg-zinc-100 text-zinc-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-colors"
                       >
-                        Reset Design
-                      </button>
-                      <button
-                        onClick={sendToWhatsApp}
-                        className="flex-1 py-4 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-600/20"
-                      >
-                        <svg
-                          className="w-4 h-4 fill-current"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.353-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.131.569-.071 1.758-.699 2.006-1.376.248-.678.248-1.259.173-1.376-.074-.117-.27-.191-.567-.341zM12 0C5.373 0 0 5.373 0 12c0 2.123.55 4.118 1.512 5.859L0 24l6.337-1.663C7.935 23.31 9.894 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.894 0-3.66-.544-5.159-1.482l-.37-.232-3.832 1.004 1.022-3.733-.255-.406C2.488 15.659 2 13.894 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z" />
-                        </svg>
-                        Share via WhatsApp
+                        Reset {view === "front" ? "Front" : "Back"}
                       </button>
                     </div>
+
+                    <button
+                      onClick={sendToWhatsApp}
+                      className="w-full py-5 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-green-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-600/20 active:scale-[0.98]"
+                    >
+                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.353-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.131.569-.071 1.758-.699 2.006-1.376.248-.678.248-1.259.173-1.376-.074-.117-.27-.191-.567-.341zM12 0C5.373 0 0 5.373 0 12c0 2.123.55 4.118 1.512 5.859L0 24l6.337-1.663C7.935 23.31 9.894 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.894 0-3.66-.544-5.159-1.482l-.37-.232-3.832 1.004 1.022-3.733-.255-.406C2.488 15.659 2 13.894 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z" />
+                      </svg>
+                      Share on WhatsApp
+                    </button>
                   </div>
 
                   <div className="p-6 bg-indigo-50 rounded-2xl border border-indigo-100">
                     <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest leading-relaxed">
                       Tip: You can drag the design directly on the mockup to
-                      reposition it.
+                      reposition it. Switch views to add a design to the other
+                      side.
                     </p>
                   </div>
                 </div>

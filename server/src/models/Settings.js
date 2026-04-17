@@ -20,6 +20,8 @@ const settingsSchema = new mongoose.Schema(
       youtube: { type: String, default: "" },
     },
     about: { type: String, default: "" },
+    fabrics: { type: [String], default: [] },
+    printTypes: { type: [String], default: [] },
   },
   { timestamps: true },
 );

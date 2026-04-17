@@ -15,7 +15,12 @@ const Settings = () => {
     contact: { email: "", phone: "", address: "", whatsapp: "" },
     socials: { instagram: "", facebook: "", twitter: "", youtube: "" },
     about: "",
+    fabrics: [],
+    printTypes: [],
   });
+
+  const [fabricInput, setFabricInput] = useState("");
+  const [printTypeInput, setPrintTypeInput] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -64,7 +69,11 @@ const Settings = () => {
       if (res.success && res.images.length > 0) {
         setForm((f) => ({
           ...f,
-          logo: { ...f.logo, url: res.images[0].url, public_id: res.images[0].public_id },
+          logo: {
+            ...f.logo,
+            url: res.images[0].url,
+            public_id: res.images[0].public_id,
+          },
         }));
         toast.success("Logo uploaded");
       }
@@ -80,12 +89,28 @@ const Settings = () => {
     setSaving(true);
     try {
       await updateAdminSettings(form);
-      toast.success("Settings updated");
-    } catch {
-      toast.error("Failed to update settings");
+      toast.success("Settings updated successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update settings");
     } finally {
       setSaving(false);
     }
+  };
+
+  const addItem = (field, value, setter) => {
+    if (!value.trim()) return;
+    setForm((prev) => ({
+      ...prev,
+      [field]: [...new Set([...(prev[field] || []), value.trim()])],
+    }));
+    setter("");
+  };
+
+  const removeItem = (field, index) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
   };
 
   if (loading) return <p className="text-sm text-zinc-500">Loading…</p>;
@@ -261,6 +286,109 @@ const Settings = () => {
               className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-zinc-700"
               placeholder="Short description for the footer..."
             />
+          </div>
+        </div>
+
+        <div className="space-y-8 bg-zinc-900/50 p-8 rounded-2xl border border-zinc-800">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-1 bg-white rounded-full" />
+            <h3 className="text-sm font-bold uppercase tracking-widest">
+              Lab Configuration
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* FABRICS */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                Fabric Options
+              </label>
+              <div className="flex gap-2">
+                <input
+                  value={fabricInput}
+                  onChange={(e) => setFabricInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" &&
+                    (e.preventDefault(),
+                    addItem("fabrics", fabricInput, setFabricInput))
+                  }
+                  className="flex-1 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-zinc-700"
+                  placeholder="e.g. 100% Cotton"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    addItem("fabrics", fabricInput, setFabricInput)
+                  }
+                  className="px-4 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors"
+                >
+                  ADD
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {form.fabrics?.map((fabric, idx) => (
+                  <span
+                    key={idx}
+                    className="flex items-center gap-2 px-3 py-1 bg-zinc-800 rounded-full text-[10px] font-bold text-zinc-300"
+                  >
+                    {fabric}
+                    <button
+                      type="button"
+                      onClick={() => removeItem("fabrics", idx)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* PRINT TYPES */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                Print Type Options
+              </label>
+              <div className="flex gap-2">
+                <input
+                  value={printTypeInput}
+                  onChange={(e) => setPrintTypeInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" &&
+                    (e.preventDefault(),
+                    addItem("printTypes", printTypeInput, setPrintTypeInput))
+                  }
+                  className="flex-1 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-zinc-700"
+                  placeholder="e.g. Screen Print"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    addItem("printTypes", printTypeInput, setPrintTypeInput)
+                  }
+                  className="px-4 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors"
+                >
+                  ADD
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {form.printTypes?.map((type, idx) => (
+                  <span
+                    key={idx}
+                    className="flex items-center gap-2 px-3 py-1 bg-zinc-800 rounded-full text-[10px] font-bold text-zinc-300"
+                  >
+                    {type}
+                    <button
+                      type="button"
+                      onClick={() => removeItem("printTypes", idx)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

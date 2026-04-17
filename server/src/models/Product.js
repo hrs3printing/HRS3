@@ -18,6 +18,7 @@ const productSchema = new mongoose.Schema(
     category: [String],
     subCategory: [String],
     size: [String],
+    colors: [String],
     description: String,
     rating: { type: Number, default: 0 },
     reviews: { type: Number, default: 0 },

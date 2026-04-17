@@ -18,7 +18,7 @@ export const getCart = asyncHandler(async (req, res) => {
 
 // ADD TO CART
 export const addToCart = asyncHandler(async (req, res) => {
-  const { productId, qty } = req.body || {};
+  const { productId, qty, size, color } = req.body || {};
 
   // ✅ Validate ID
   if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -37,13 +37,16 @@ export const addToCart = asyncHandler(async (req, res) => {
   }
 
   const itemIndex = cart.items.findIndex(
-    (item) => item.product.toString() === productId,
+    (item) =>
+      item.product.toString() === productId &&
+      item.size === size &&
+      item.color === color,
   );
 
   if (itemIndex > -1) {
     cart.items[itemIndex].qty += numericQty;
   } else {
-    cart.items.push({ product: productId, qty: numericQty });
+    cart.items.push({ product: productId, qty: numericQty, size, color });
   }
 
   await cart.save();

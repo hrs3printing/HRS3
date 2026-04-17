@@ -7,10 +7,11 @@ export const getCart = async () => {
 };
 
 // ➕ ADD ITEM
-export const addItem = async (productId, qty = 1) => {
+export const addItem = async (productId, qty = 1, options = {}) => {
   const res = await api.post("/cart/add", {
     productId,
     qty,
+    ...options,
   });
   return res.data;
 };
