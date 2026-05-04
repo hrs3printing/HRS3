@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import MockupPreview from "../components/MockupPreview";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
@@ -116,6 +117,17 @@ const ProductDetail = () => {
       toast.error("Could not add to cart. Please sign in.");
     }
   }, [addToCart, product, qty, size, color]);
+
+  const handleBuyNow = useCallback(async () => {
+    if (!product) return;
+
+    try {
+      await addToCart(product._id, qty, { size, color });
+      navigate("/checkout");
+    } catch {
+      toast.error("Could not process request. Please sign in.");
+    }
+  }, [addToCart, navigate, product, qty, size, color]);
 
   if (!product)
     return (
@@ -263,9 +275,7 @@ const ProductDetail = () => {
                   Add to Cart
                 </button>
                 <button
-                  onClick={() =>
-                    toast.success("Buy Now coming soon")
-                  }
+                  onClick={handleBuyNow}
                   className="flex-1 bg-zinc-100 text-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-200 transition-all active:scale-95 border border-zinc-200"
                 >
                   Buy Now
@@ -314,16 +324,26 @@ const ProductDetail = () => {
               <div className="pt-10 space-y-8">
                 {product.printingDetails?.technology && (
                   <div className="bg-zinc-50 rounded-2xl p-6 space-y-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Printing Information</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Printing Information
+                    </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-1">
-                        <p className="text-[8px] font-black uppercase text-zinc-400">Technology</p>
-                        <p className="text-xs font-bold text-zinc-900 uppercase">{product.printingDetails.technology}</p>
+                        <p className="text-[8px] font-black uppercase text-zinc-400">
+                          Technology
+                        </p>
+                        <p className="text-xs font-bold text-zinc-900 uppercase">
+                          {product.printingDetails.technology}
+                        </p>
                       </div>
                       {product.printingDetails.area && (
                         <div className="space-y-1">
-                          <p className="text-[8px] font-black uppercase text-zinc-400">Print Area</p>
-                          <p className="text-xs font-bold text-zinc-900 uppercase">{product.printingDetails.area}</p>
+                          <p className="text-[8px] font-black uppercase text-zinc-400">
+                            Print Area
+                          </p>
+                          <p className="text-xs font-bold text-zinc-900 uppercase">
+                            {product.printingDetails.area}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -333,30 +353,52 @@ const ProductDetail = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   {product.manufacturerDetails?.name && (
                     <div className="space-y-3">
-                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Manufacturer</h3>
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                        Manufacturer
+                      </h3>
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-zinc-900 uppercase">{product.manufacturerDetails.name}</p>
-                        <p className="text-[10px] font-medium text-zinc-500 uppercase leading-relaxed max-w-xs">{product.manufacturerDetails.address}</p>
-                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-2">Origin: {product.manufacturerDetails.countryOfOrigin}</p>
+                        <p className="text-xs font-bold text-zinc-900 uppercase">
+                          {product.manufacturerDetails.name}
+                        </p>
+                        <p className="text-[10px] font-medium text-zinc-500 uppercase leading-relaxed max-w-xs">
+                          {product.manufacturerDetails.address}
+                        </p>
+                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-2">
+                          Origin: {product.manufacturerDetails.countryOfOrigin}
+                        </p>
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="space-y-3">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pricing Details</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Pricing Details
+                    </h3>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center py-2 border-b border-zinc-100">
-                        <span className="text-[9px] font-black uppercase text-zinc-400">MRP (Incl. of all taxes)</span>
-                        <span className="text-xs font-black text-zinc-900">₹{product.mrp || product.price}</span>
+                        <span className="text-[9px] font-black uppercase text-zinc-400">
+                          MRP (Incl. of all taxes)
+                        </span>
+                        <span className="text-xs font-black text-zinc-900">
+                          ₹{product.mrp || product.price}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-zinc-100">
-                        <span className="text-[9px] font-black uppercase text-zinc-400">GST Rate</span>
-                        <span className="text-xs font-black text-zinc-900">{product.taxPercent || 5}%</span>
+                        <span className="text-[9px] font-black uppercase text-zinc-400">
+                          GST Rate
+                        </span>
+                        <span className="text-xs font-black text-zinc-900">
+                          {product.taxPercent || 5}%
+                        </span>
                       </div>
                       {product.hsnCode && (
                         <div className="flex justify-between items-center py-2 border-b border-zinc-100">
-                          <span className="text-[9px] font-black uppercase text-zinc-400">HSN Code</span>
-                          <span className="text-xs font-black text-zinc-900">{product.hsnCode}</span>
+                          <span className="text-[9px] font-black uppercase text-zinc-400">
+                            HSN Code
+                          </span>
+                          <span className="text-xs font-black text-zinc-900">
+                            {product.hsnCode}
+                          </span>
                         </div>
                       )}
                     </div>
