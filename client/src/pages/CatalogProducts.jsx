@@ -96,8 +96,8 @@ const CatalogProducts = () => {
       <PageShell>
         <PageHero
           align="left"
-          title="The"
-          accent="Archive"
+          title="Browse"
+          accent="Products"
           subtitle="Loading..."
         />
         <PageContent>
@@ -142,7 +142,7 @@ const CatalogProducts = () => {
         accent={
           subCategoryParam ? `/ ${formatCategoryName(subCategoryParam)}` : ""
         }
-        subtitle={`${filteredProducts.length} premium pieces`}
+        subtitle={`${filteredProducts.length} premium products`}
       >
         <div className="mt-8 flex items-center gap-4">
           <button
@@ -162,7 +162,7 @@ const CatalogProducts = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Archive
+            Back to Catalog
           </button>
         </div>
       </PageHero>

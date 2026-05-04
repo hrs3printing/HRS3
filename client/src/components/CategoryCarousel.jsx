@@ -95,7 +95,7 @@ const CategoryCarousel = () => {
             to="/catalog"
             className="group inline-flex items-center gap-4 rounded-full bg-black px-10 py-5 text-[10px] font-black uppercase tracking-[0.3em] text-white hover:bg-indigo-600 transition-all shadow-2xl active:scale-95"
           >
-            View Full Archive
+            View All Categories
             <svg
               className="w-4 h-4 transition-transform group-hover:translate-x-1"
               fill="none"

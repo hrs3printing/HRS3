@@ -55,7 +55,7 @@ const Login = () => {
         <div className="absolute bottom-12 left-12 flex items-center gap-4">
           <div className="h-px w-12 bg-indigo-600" />
           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-            HRS3 Archive v2.0
+            HRS3 Catalog
           </span>
         </div>
       </div>
@@ -64,24 +64,26 @@ const Login = () => {
       <div className="flex items-center justify-center p-8 sm:p-12 md:p-20">
         <div className="w-full max-w-md space-y-12 animate-slideLeft will-change-both">
           <div className="space-y-4">
-            <h2 className="text-3xl font-black uppercase tracking-tighter text-black">
-              Sign In
-            </h2>
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-              Enter your credentials to access the archive.
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-black leading-none">
+              Welcome <br />
+              <span className="text-zinc-300">Back</span>
+            </h1>
+            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">
+              HRS3 Catalog
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-2 group">
                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1 group-focus-within:text-indigo-600 transition-colors">
-                  Digital Identity
+                  Email Address
                 </label>
                 <input
                   name="email"
                   type="email"
-                  placeholder="EMAIL ADDRESS"
+                  required
+                  placeholder="ENTER EMAIL"
                   onChange={handleChange}
                   className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
                 />

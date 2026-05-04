@@ -24,7 +24,9 @@ const Products = () => {
     if (!Array.isArray(categories)) return data;
     categories.forEach((cat) => {
       if (cat?.name) {
-        data[cat.name] = Array.isArray(cat.subCategories) ? cat.subCategories : [];
+        data[cat.name] = Array.isArray(cat.subCategories)
+          ? cat.subCategories
+          : [];
       }
     });
     return data;
@@ -139,9 +141,9 @@ const Products = () => {
     <PageShell>
       <PageHero
         align="left"
-        title="The"
-        accent="Archive"
-        subtitle={`${filteredProducts.length} premium pieces`}
+        title="Our"
+        accent="Catalog"
+        subtitle="Browse our complete collection of premium products"
       >
         {searchQuery ? (
           <div className="rounded-full bg-indigo-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-500/20">
@@ -211,7 +213,7 @@ const Products = () => {
 
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">
-                  Archive Filters
+                  Filters
                 </h3>
                 <button
                   onClick={clearFilters}
@@ -235,7 +237,7 @@ const Products = () => {
                         : "text-zinc-400 border-transparent hover:text-zinc-900"
                     }`}
                   >
-                    All Pieces
+                    All Products
                   </button>
                   {Object.keys(categoryData).map((cat) => (
                     <div key={cat} className="space-y-2">
@@ -406,15 +408,20 @@ const Products = () => {
                   </div>
                 ))
               ) : (
-                <div className="col-span-full py-32 text-center">
-                  <p className="text-2xl font-black uppercase tracking-tighter text-zinc-300 mb-4">
-                    No Pieces Found
-                  </p>
+                <div className="col-span-full flex flex-col items-center justify-center py-40 space-y-8 animate-fadeUp">
+                  <div className="text-center space-y-4">
+                    <h2 className="text-3xl font-black uppercase tracking-tighter text-black">
+                      No Products Found
+                    </h2>
+                    <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                      Try adjusting your search or filters.
+                    </p>
+                  </div>
                   <button
                     onClick={clearFilters}
-                    className="text-xs font-black uppercase tracking-widest text-indigo-600 hover:text-black transition-colors underline"
+                    className="bg-black text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-all active:scale-95"
                   >
-                    Clear Archive Filters
+                    Clear Filters
                   </button>
                 </div>
               )}

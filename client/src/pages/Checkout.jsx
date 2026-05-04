@@ -27,7 +27,7 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!cartItems.length) {
-      toast.error("Archive is empty");
+      toast.error("Cart is empty");
       return;
     }
     try {
@@ -43,8 +43,8 @@ const Checkout = () => {
           key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: subtotal * 100,
           currency: "INR",
-          name: "HRS3 ARCHIVE",
-          description: "Archive Acquisition",
+          name: "HRS3",
+          description: "Order Payment",
           order_id: order.razorpayOrderId,
           handler: async (response) => {
             try {
@@ -54,10 +54,10 @@ const Checkout = () => {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
               });
-              toast.success("Acquisition Successful");
+              toast.success("Order Placed Successfully");
               navigate("/orders");
             } catch (err) {
-              toast.error("Verification failed");
+              toast.error("Payment verification failed");
             }
           },
           theme: { color: "#000000" },
@@ -74,8 +74,8 @@ const Checkout = () => {
     <PageShell>
       <PageHero
         title="Finalize"
-        accent="Acquisition"
-        subtitle="Secure encrypted checkout for your curated archive"
+        accent="Order"
+        subtitle="Review your items before we ship them to you"
       />
 
       <PageContent>
@@ -85,12 +85,12 @@ const Checkout = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
-                  Logistics Identity
+                  Shipping Details
                 </h2>
                 <div className="h-px flex-1 bg-zinc-100" />
               </div>
               <p className="text-sm font-medium text-zinc-500 uppercase tracking-tight">
-                Where should we dispatch your archive pieces?
+                Where should we send your order?
               </p>
             </div>
 
@@ -105,7 +105,7 @@ const Checkout = () => {
                     required
                     onChange={handleChange}
                     className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
-                    placeholder="GIVEN NAME"
+                    placeholder="ENTER FIRST NAME"
                   />
                 </div>
                 <div className="space-y-2">
@@ -117,7 +117,7 @@ const Checkout = () => {
                     required
                     onChange={handleChange}
                     className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
-                    placeholder="SURNAME"
+                    placeholder="ENTER LAST NAME"
                   />
                 </div>
               </div>
@@ -125,7 +125,7 @@ const Checkout = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
-                    Digital Reach
+                    Email Address
                   </label>
                   <input
                     name="email"
@@ -133,26 +133,26 @@ const Checkout = () => {
                     required
                     onChange={handleChange}
                     className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
-                    placeholder="EMAIL"
+                    placeholder="ENTER EMAIL"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
-                    Direct Line
+                    Phone Number
                   </label>
                   <input
                     name="phone"
                     required
                     onChange={handleChange}
                     className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
-                    placeholder="PHONE"
+                    placeholder="ENTER PHONE"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
-                  Primary Location
+                  Delivery Address
                 </label>
                 <textarea
                   name="address"
@@ -191,7 +191,7 @@ const Checkout = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
-                    Zip Code
+                    Pincode
                   </label>
                   <input
                     name="pincode"
@@ -210,7 +210,7 @@ const Checkout = () => {
             <div className="bg-zinc-900 rounded-[3rem] p-8 sm:p-12 text-white space-y-12 shadow-2xl shadow-black/10">
               <div className="space-y-4">
                 <h3 className="text-2xl font-black uppercase tracking-tighter">
-                  Acquisition Summary
+                  Order Summary
                 </h3>
                 <div className="h-px w-full bg-zinc-800" />
               </div>
@@ -248,7 +248,7 @@ const Checkout = () => {
               <div className="space-y-6 pt-6 border-t border-zinc-800">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                    Archive Value
+                    Items Total
                   </span>
                   <span className="text-sm font-black tracking-tight">
                     ₹{subtotal}
@@ -256,16 +256,16 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                    Logistics
+                    Shipping
                   </span>
                   <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                    Complimentary
+                    Free
                   </span>
                 </div>
                 <div className="h-px w-full border-t border-dashed border-zinc-800" />
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">
-                    Total Acquisition
+                    Total Amount
                   </span>
                   <span className="text-3xl font-black tracking-tighter text-indigo-500">
                     ₹{subtotal}
@@ -279,24 +279,6 @@ const Checkout = () => {
               >
                 Complete Payment
               </button>
-
-              <div className="flex items-center justify-center gap-6 opacity-40 grayscale contrast-125 pt-4">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                  className="h-4"
-                  alt="PayPal"
-                />
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
-                  className="h-6"
-                  alt="Mastercard"
-                />
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
-                  className="h-3"
-                  alt="Visa"
-                />
-              </div>
             </div>
           </div>
         </div>

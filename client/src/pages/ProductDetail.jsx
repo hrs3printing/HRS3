@@ -169,14 +169,17 @@ const ProductDetail = () => {
             {/* RIGHT: DETAILS */}
             <div className="flex flex-col gap-10 sm:gap-14 py-4 animate-slideLeft">
               <div className="space-y-6">
-                <div className="space-y-2">
+                {/* PRODUCT IDENTITY */}
+                <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-indigo-600 text-[10px] font-black uppercase tracking-[0.3em]">
-                      {product.category?.[0] ||
-                        product.category ||
-                        "Limited Drop"}
+                    <span className="bg-black text-white text-[8px] font-black uppercase px-2 py-1 tracking-[0.2em] rounded">
+                      In Stock
                     </span>
-                    <div className="h-px w-8 bg-indigo-100" />
+                    {product.genericName && (
+                      <span className="text-zinc-400 text-[9px] font-black uppercase tracking-widest">
+                        {product.genericName}
+                      </span>
+                    )}
                   </div>
                   <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter text-black leading-none">
                     {product.name}
@@ -232,9 +235,6 @@ const ProductDetail = () => {
                         ? "Select Volume"
                         : "Select Size"}
                     </span>
-                    <button className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-black transition-colors underline underline-offset-4">
-                      Size Guide
-                    </button>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {product.size.map((s) => (
@@ -260,15 +260,15 @@ const ProductDetail = () => {
                   onClick={handleAddToCart}
                   className="flex-1 bg-black text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-all active:scale-95 shadow-2xl shadow-black/10"
                 >
-                  Add to Archive
+                  Add to Cart
                 </button>
                 <button
                   onClick={() =>
-                    toast.success("Direct Acquisition coming soon")
+                    toast.success("Buy Now coming soon")
                   }
                   className="flex-1 bg-zinc-100 text-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-200 transition-all active:scale-95 border border-zinc-200"
                 >
-                  Direct Acquisition
+                  Buy Now
                 </button>
               </div>
 
@@ -276,7 +276,7 @@ const ProductDetail = () => {
               <div className="space-y-6 pt-10 border-t border-zinc-100">
                 <div className="flex items-center gap-4">
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
-                    Design Brief
+                    Product Description
                   </h3>
                   <div className="h-px flex-1 bg-zinc-50" />
                 </div>
@@ -286,22 +286,82 @@ const ProductDetail = () => {
               </div>
 
               {/* FEATURES */}
-              <div className="grid grid-cols-2 gap-8 pt-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 pt-10 border-t border-zinc-100">
                 {[
-                  { label: "Material", val: "100% Premium Cotton" },
-                  { label: "GSM", val: "240 Heavyweight" },
-                  { label: "Fit", val: "Signature Oversized" },
-                  { label: "Origin", val: "Archive Studio" },
-                ].map((item) => (
-                  <div key={item.label} className="space-y-1">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
-                      {item.label}
-                    </p>
-                    <p className="text-xs font-black uppercase text-zinc-900 tracking-tight">
-                      {item.val}
-                    </p>
+                  { label: "Fabric", val: product.fabric },
+                  { label: "Fit", val: product.fit },
+                  { label: "Neck", val: product.neckType },
+                  { label: "Sleeve", val: product.sleeveLength },
+                  { label: "Weight", val: product.weight },
+                  { label: "Occasion", val: product.occasion },
+                  { label: "Pattern", val: product.pattern },
+                  { label: "Net Qty", val: product.netQuantity },
+                ]
+                  .filter((item) => item.val)
+                  .map((item) => (
+                    <div key={item.label} className="space-y-1">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                        {item.label}
+                      </p>
+                      <p className="text-xs font-black uppercase text-zinc-900 tracking-tight">
+                        {item.val}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+
+              {/* TECHNICAL & LEGAL DETAILS */}
+              <div className="pt-10 space-y-8">
+                {product.printingDetails?.technology && (
+                  <div className="bg-zinc-50 rounded-2xl p-6 space-y-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Printing Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <p className="text-[8px] font-black uppercase text-zinc-400">Technology</p>
+                        <p className="text-xs font-bold text-zinc-900 uppercase">{product.printingDetails.technology}</p>
+                      </div>
+                      {product.printingDetails.area && (
+                        <div className="space-y-1">
+                          <p className="text-[8px] font-black uppercase text-zinc-400">Print Area</p>
+                          <p className="text-xs font-bold text-zinc-900 uppercase">{product.printingDetails.area}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ))}
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  {product.manufacturerDetails?.name && (
+                    <div className="space-y-3">
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Manufacturer</h3>
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-zinc-900 uppercase">{product.manufacturerDetails.name}</p>
+                        <p className="text-[10px] font-medium text-zinc-500 uppercase leading-relaxed max-w-xs">{product.manufacturerDetails.address}</p>
+                        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-2">Origin: {product.manufacturerDetails.countryOfOrigin}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-3">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pricing Details</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center py-2 border-b border-zinc-100">
+                        <span className="text-[9px] font-black uppercase text-zinc-400">MRP (Incl. of all taxes)</span>
+                        <span className="text-xs font-black text-zinc-900">₹{product.mrp || product.price}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-zinc-100">
+                        <span className="text-[9px] font-black uppercase text-zinc-400">GST Rate</span>
+                        <span className="text-xs font-black text-zinc-900">{product.taxPercent || 5}%</span>
+                      </div>
+                      {product.hsnCode && (
+                        <div className="flex justify-between items-center py-2 border-b border-zinc-100">
+                          <span className="text-[9px] font-black uppercase text-zinc-400">HSN Code</span>
+                          <span className="text-xs font-black text-zinc-900">{product.hsnCode}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -323,14 +383,14 @@ const ProductDetail = () => {
                     <div className="h-px w-12 bg-indigo-100" />
                   </div>
                   <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter text-black leading-none">
-                    Similar <span className="text-zinc-200">Pieces</span>
+                    Similar <span className="text-zinc-200">Products</span>
                   </h2>
                 </div>
                 <Link
-                  to="/products"
+                  to="/catalog"
                   className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black transition-colors underline underline-offset-8"
                 >
-                  View All Pieces
+                  View All Products
                 </Link>
               </div>
 

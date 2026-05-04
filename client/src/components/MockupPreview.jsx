@@ -439,8 +439,8 @@ const MockupPreview = () => {
                     <div className="space-y-4">
                       <div className="flex justify-between">
                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                          Scale Archive
-                        </span>
+                            Logo Size
+                          </span>
                         <span className="text-[10px] font-black text-indigo-600">
                           {Math.round(activeConfig.scale * 100)}%
                         </span>

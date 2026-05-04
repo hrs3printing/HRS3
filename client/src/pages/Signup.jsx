@@ -26,8 +26,7 @@ const Signup = () => {
       setIsSubmitting(true);
       const { data } = await api.post("/auth/register", form);
       toast.success(
-        data?.message ||
-          "Signup successful. Please verify your email.",
+        data?.message || "Signup successful. Please verify your email.",
       );
       const email = data?.verificationTarget?.email || form.email;
       navigate(`/verify-email?email=${encodeURIComponent(email)}`);
@@ -54,21 +53,20 @@ const Signup = () => {
 
         <div className="relative z-10 max-w-md text-center px-12 animate-fadeUp will-change-both">
           <span className="text-indigo-500 text-[10px] font-black uppercase tracking-[0.5em] mb-6 block">
-            Join the Archive
+            New Account
           </span>
           <h1 className="text-5xl sm:text-7xl font-black text-white uppercase tracking-tighter leading-none mb-8">
-            Create <span className="text-zinc-500">Identity</span>
+            Join <span className="text-zinc-500">HRS3</span>
           </h1>
           <p className="text-zinc-400 text-sm font-medium leading-relaxed">
-            Gain exclusive access to limited drops and manage your premium
-            collection.
+            Create an account to track your orders and manage your profile.
           </p>
         </div>
 
         <div className="absolute bottom-12 left-12 flex items-center gap-4">
           <div className="h-px w-12 bg-indigo-600" />
           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-            HRS3 Registry v2.0
+            HRS3 Catalog
           </span>
         </div>
       </div>
@@ -77,25 +75,27 @@ const Signup = () => {
       <div className="flex items-center justify-center p-8 sm:p-12 md:p-20">
         <div className="w-full max-w-md space-y-12 animate-slideLeft will-change-both">
           <div className="space-y-4">
-            <h2 className="text-3xl font-black uppercase tracking-tighter text-black">
-              New Account
-            </h2>
-            <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-              Register to start your premium journey.
+            <h1 className="text-4xl font-black uppercase tracking-tighter text-black leading-none">
+              Create <br />
+              <span className="text-zinc-300">Account</span>
+            </h1>
+            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">
+              Join HRS3
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-2 group">
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1 group-focus-within:text-indigo-600 transition-colors">
-                  Legal Name
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
+                  Full Name
                 </label>
                 <input
                   name="name"
-                  placeholder="FULL NAME"
+                  required
                   onChange={handleChange}
                   className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
+                  placeholder="ENTER YOUR NAME"
                 />
               </div>
 

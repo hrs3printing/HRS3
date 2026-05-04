@@ -76,17 +76,32 @@ const Customize = () => {
         <div className="mx-auto max-w-3xl">
           <div className="rounded-[3rem] border-2 border-zinc-100 bg-zinc-50 p-8 sm:p-12 animate-fadeUp will-change-both">
             <div className="space-y-8">
-              <div className="space-y-2">
-                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-900">
-                  Identity
-                </label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="FULL NAME"
-                  className="w-full rounded-2xl border-2 border-zinc-100 bg-white px-6 py-4 text-xs font-black uppercase tracking-widest outline-none transition-colors focus:border-indigo-600"
-                />
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
+                    Contact Details
+                  </h2>
+                  <div className="h-px flex-1 bg-zinc-100" />
+                </div>
+                <p className="text-sm font-medium text-zinc-500 uppercase tracking-tight">
+                  How can we reach you?
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
+                    Your Name
+                  </label>
+                  <input
+                    name="name"
+                    value={form.name}
+                    required
+                    onChange={handleChange}
+                    className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
+                    placeholder="ENTER YOUR NAME"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

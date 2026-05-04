@@ -82,7 +82,7 @@ const FAQs = () => {
       <PageHero
         align="left"
         title="FAQs"
-        accent="Archive"
+        accent="Help"
         subtitle="Common queries & service guidelines"
       />
 

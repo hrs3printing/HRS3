@@ -81,8 +81,8 @@ const CatalogCategories = () => {
       <PageHero
         align="left"
         title="Explore"
-        accent="Collections"
-        subtitle={`${categories.length} Curated Categories`}
+        accent="Catalog"
+        subtitle={`${categories.length} Categories Available`}
       />
 
       <PageContent className="!pt-0 sm:!pt-0 !px-0 sm:!px-8 max-w-[1600px] mx-auto">
@@ -143,7 +143,7 @@ const CatalogCategories = () => {
                       : activeCategory?.name}
                   </h2>
                   <p className="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-zinc-900">
-                    {activeSubCategory ? "Collection" : "Archives"}
+                    {activeSubCategory ? "Collection" : "Catalog"}
                   </p>
                 </div>
                 {activeSubCategory && (

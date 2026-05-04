@@ -29,8 +29,8 @@ const Cart = () => {
     <PageShell>
       <PageHero
         title="Your"
-        accent="Archive"
-        subtitle={`${cart.length} curated pieces selected`}
+        accent="Cart"
+        subtitle={`${cart.length} items in your bag`}
       />
 
       <PageContent>
@@ -53,17 +53,17 @@ const Cart = () => {
             </div>
             <div className="text-center space-y-2">
               <h2 className="text-xl font-black uppercase tracking-tighter text-black">
-                Archive is Empty
+                Your Cart is Empty
               </h2>
               <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                No pieces have been acquired yet.
+                Looks like you haven't added anything yet.
               </p>
             </div>
             <Link
               to="/catalog"
               className="bg-black text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-all active:scale-95 shadow-2xl shadow-black/10"
             >
-              Explore Collection
+              Start Shopping
             </Link>
           </div>
         ) : (
@@ -72,7 +72,7 @@ const Cart = () => {
             <div className="lg:col-span-2 space-y-8 animate-slideRight">
               <div className="flex items-center gap-4 mb-10">
                 <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
-                  Selected Pieces
+                  Selected Items
                 </h2>
                 <div className="h-px flex-1 bg-zinc-100" />
               </div>
@@ -101,7 +101,8 @@ const Cart = () => {
                             {item.product?.name}
                           </h3>
                           <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">
-                            {item.product?.subCategory?.[0] || "Premium Piece"}
+                            {item.product?.subCategory?.[0] ||
+                              "Premium Quality"}
                           </p>
                         </div>
                         <button
@@ -194,7 +195,7 @@ const Cart = () => {
               <div className="bg-zinc-900 rounded-[3rem] p-8 sm:p-12 text-white space-y-10 shadow-2xl shadow-black/10">
                 <div className="space-y-4">
                   <h3 className="text-2xl font-black uppercase tracking-tighter">
-                    Summary
+                    Order Summary
                   </h3>
                   <div className="h-px w-full bg-zinc-800" />
                 </div>
@@ -210,10 +211,10 @@ const Cart = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                      Logistics
+                      Shipping
                     </span>
                     <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                      Complimentary
+                      Free
                     </span>
                   </div>
                   <div className="h-px w-full border-t border-dashed border-zinc-800" />
@@ -235,8 +236,7 @@ const Cart = () => {
                 </button>
 
                 <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest text-center leading-relaxed">
-                  Taxes and shipping calculated at acquisition. <br />
-                  Secure checkout via encrypted gateways.
+                  Taxes and shipping calculated at checkout.
                 </p>
               </div>
             </div>

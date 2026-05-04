@@ -113,53 +113,13 @@ const Quality = () => {
           <div className="relative animate-slideLeft will-change-both lg:h-[600px] flex items-center justify-center">
             <div className="relative w-full max-w-xl aspect-square">
               {/* Main image card */}
-              <div className="absolute inset-0 rounded-[3rem] sm:rounded-[5rem] overflow-hidden rotate-3 shadow-2xl shadow-black/50 group transition-transform duration-1000 hover:rotate-0">
+              <div className="absolute inset-0 rounded-[3rem] sm:rounded-[5rem] overflow-hidden shadow-2xl shadow-black/50 group transition-transform duration-1000">
                 <img
                   src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e"
                   alt="Quality Assurance"
                   className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-700" />
-              </div>
-
-              {/* Floating elements */}
-              <div className="absolute -top-6 -right-6 sm:-top-12 sm:-right-12 bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl -rotate-6 animate-fadeUp animate-delay-500 group-hover:rotate-0 transition-transform duration-700">
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-3xl sm:text-5xl font-black text-black">
-                    100%
-                  </span>
-                  <span className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">
-                    Premium
-                  </span>
-                </div>
-              </div>
-
-              <div className="absolute -bottom-6 -left-6 sm:-bottom-12 sm:-left-12 bg-indigo-600 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl rotate-12 animate-fadeUp animate-delay-400 group-hover:rotate-0 transition-transform duration-700">
-                <div className="flex items-center gap-3 sm:gap-5 text-white">
-                  <div className="h-10 w-10 sm:h-14 sm:w-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
-                    <svg
-                      className="w-5 h-5 sm:w-7 sm:h-7"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2.5}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] opacity-60">
-                      Verified
-                    </p>
-                    <p className="text-xs sm:text-sm font-black uppercase tracking-widest">
-                      Quality Control
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

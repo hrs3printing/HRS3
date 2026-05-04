@@ -153,7 +153,7 @@ const Footer = () => {
 
         <div className="mt-20 flex flex-col items-center justify-between gap-6 border-t border-white/5 pt-20 md:flex-row">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
-            &copy; {new Date().getFullYear()} HRS3 Premium. All Rights Reserved.
+            &copy; {new Date().getFullYear()} HRS3. All Rights Reserved.
           </p>
           <div className="flex gap-8 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
             <button className="hover:text-white transition-colors">

@@ -7,19 +7,18 @@ import hero3 from "../assets/hero3.jpg";
 
 const fallbackSlides = [
   {
-    image: { url: hero1 },
-    title: "Elevate Your Everyday Style",
-    subtitle: "Timeless fits. Superior comfort. Effortless drip.",
+    title: "Premium Essentials",
+    subtitle: "Elevate your daily style with our basic collection",
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+    link: "/catalog",
+    tag: "New Season",
   },
   {
-    image: { url: hero2 },
-    title: "Premium Quality Prints",
-    subtitle: "High quality materials & long lasting prints",
-  },
-  {
-    image: { url: hero3 },
-    title: "Wear Your Identity",
-    subtitle: "Premium tees designed for everyday confidence",
+    title: "Oversized Collection",
+    subtitle: "Streetwear fits designed for maximum comfort",
+    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e",
+    link: "/catalog?sub=oversized",
+    tag: "Trending",
   },
 ];
 

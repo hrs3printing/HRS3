@@ -98,7 +98,7 @@ const Contact = () => {
               {settings?.contact?.address && (
                 <div className="group">
                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
-                    Archive Location
+                    Store Location
                   </p>
                   <p className="text-lg font-black text-black leading-tight uppercase tracking-tight">
                     {settings.contact.address}
@@ -135,18 +135,32 @@ const Contact = () => {
               className="bg-zinc-50 p-8 sm:p-12 rounded-[3rem] border-2 border-zinc-100 space-y-8"
             >
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
-                    Identity
-                  </label>
-                  <input
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="FULL NAME"
-                    required
-                    className="w-full bg-white border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 transition-colors"
-                  />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
+                      Your Information
+                    </h2>
+                    <div className="h-px flex-1 bg-zinc-100" />
+                  </div>
+                  <p className="text-sm font-medium text-zinc-500 uppercase tracking-tight">
+                    Tell us who you are
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
+                      Full Name
+                    </label>
+                    <input
+                      name="name"
+                      value={form.name}
+                      required
+                      onChange={handleChange}
+                      className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-indigo-600 focus:bg-white transition-all"
+                      placeholder="ENTER NAME"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -166,7 +180,7 @@ const Contact = () => {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
-                    Archive Inquiry
+                    Order Inquiry
                   </label>
                   <textarea
                     name="message"
