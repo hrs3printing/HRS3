@@ -28,7 +28,7 @@ export function PageHero({
 
   const titleEl =
     title != null && title !== "" ? (
-      <h1 className="text-4xl sm:text-7xl font-black uppercase tracking-tighter text-black leading-none mb-4 sm:mb-6">
+      <h1 className="text-4xl sm:text-7xl font-black uppercase tracking-tighter text-black leading-[0.9] mb-4 sm:mb-6">
         {title}{" "}
         {accent != null && accent !== "" && (
           <span className="text-zinc-200">{accent}</span>

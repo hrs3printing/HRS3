@@ -95,7 +95,7 @@ const Navbar = () => {
   const linkClassName = ({ isActive }) =>
     `rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
       isActive
-        ? "bg-zinc-900 text-white shadow-lg shadow-zinc-900/20"
+        ? "bg-black text-white shadow-lg shadow-black/10"
         : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
     }`;
 
@@ -186,7 +186,7 @@ const Navbar = () => {
                   {user.role === "admin" && (
                     <a
                       href={adminUrl}
-                      className="rounded-full bg-zinc-900 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-white transition-colors hover:bg-indigo-600"
+                      className="rounded-full bg-black px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-white transition-colors hover:bg-indigo-600"
                     >
                       Admin
                     </a>

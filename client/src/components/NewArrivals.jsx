@@ -129,21 +129,21 @@ const NewArrivals = () => {
                       </div>
                     </div>
 
-                    <div className="mt-6 flex flex-col gap-2 px-2">
+                    <div className="mt-6 flex flex-col gap-2 px-1">
                       <div className="flex justify-between items-start gap-4">
-                        <h3 className="text-sm sm:text-base font-black uppercase tracking-tight text-zinc-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                        <h3 className="text-[11px] sm:text-xs font-black uppercase tracking-tight text-zinc-900 group-hover:text-indigo-600 transition-colors line-clamp-1 leading-none">
                           {product.name}
                         </h3>
-                        <p className="text-indigo-600 text-sm font-black tracking-tighter">
+                        <p className="text-zinc-900 text-xs font-black tracking-tighter">
                           ₹{product.price}
                         </p>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+                        <p className="text-zinc-400 text-[8px] font-black uppercase tracking-[0.2em]">
                           {product.category || "Premium Essential"}
                         </p>
                         <div className="flex gap-1">
-                          <div className="h-1 w-4 rounded-full bg-zinc-100 group-hover:bg-indigo-100 transition-colors" />
+                          <div className="h-1 w-3 rounded-full bg-zinc-100 group-hover:bg-indigo-100 transition-colors" />
                           <div className="h-1 w-1 rounded-full bg-zinc-100 group-hover:bg-indigo-600 transition-colors" />
                         </div>
                       </div>

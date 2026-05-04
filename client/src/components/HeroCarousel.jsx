@@ -96,12 +96,25 @@ const HeroCarousel = () => {
                 {slide.subtitle}
               </p>
 
-              {/* <Link
-                to="/catalog"
-                className="bg-white px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm font-medium text-black rounded-md transition-transform hover:scale-105 active:scale-95 animate-fadeUp animate-delay-300"
+              <Link
+                to={slide.link || "/catalog"}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] rounded-full transition-all hover:bg-indigo-600 hover:text-white hover:scale-105 active:scale-95 shadow-2xl animate-fadeUp animate-delay-300"
               >
-                Shop Now
-              </Link> */}
+                Explore Collection
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </Link>
             </div>
           </div>
         ))}

@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, PageContent } from "../components/PageShell";
 import { useCart } from "../context/CartContext";
@@ -94,8 +94,8 @@ const Checkout = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-2 gap-6">
+            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
                     First Name
@@ -122,7 +122,7 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
                     Email Address
@@ -164,7 +164,7 @@ const Checkout = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
                     City
@@ -207,12 +207,12 @@ const Checkout = () => {
 
           {/* RIGHT: SUMMARY */}
           <div className="animate-slideLeft">
-            <div className="bg-zinc-900 rounded-[3rem] p-8 sm:p-12 text-white space-y-12 shadow-2xl shadow-black/10">
+            <div className="bg-white rounded-[3rem] p-8 sm:p-12 text-black space-y-12 shadow-2xl shadow-zinc-100 border border-zinc-100">
               <div className="space-y-4">
                 <h3 className="text-2xl font-black uppercase tracking-tighter">
                   Order Summary
                 </h3>
-                <div className="h-px w-full bg-zinc-800" />
+                <div className="h-px w-full bg-zinc-100" />
               </div>
 
               <div className="space-y-6 max-h-[30vh] overflow-y-auto no-scrollbar pr-4">
@@ -222,32 +222,32 @@ const Checkout = () => {
                     className="flex justify-between items-center gap-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-16 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
+                      <div className="w-12 h-16 rounded-lg overflow-hidden bg-zinc-50 border border-zinc-100 shrink-0">
                         <img
                           src={item.product?.image?.url || item.product?.image}
-                          className="h-full w-full object-cover opacity-80"
+                          className="h-full w-full object-cover"
                           alt=""
                         />
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-[11px] font-black uppercase tracking-tight text-white leading-none">
+                        <p className="text-[11px] font-black uppercase tracking-tight text-black leading-none">
                           {item.product?.name}
                         </p>
-                        <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
                           {item.size || "M"} × {item.qty}
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs font-black text-zinc-400">
+                    <p className="text-xs font-black text-zinc-900">
                       ₹{(item.product?.price || 0) * (item.qty || 0)}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="space-y-6 pt-6 border-t border-zinc-800">
+              <div className="space-y-6 pt-6 border-t border-zinc-100">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                     Items Total
                   </span>
                   <span className="text-sm font-black tracking-tight">
@@ -255,27 +255,28 @@ const Checkout = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                     Shipping
                   </span>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">
                     Free
                   </span>
                 </div>
-                <div className="h-px w-full border-t border-dashed border-zinc-800" />
+                <div className="h-px w-full border-t border-dashed border-zinc-100" />
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
                     Total Amount
                   </span>
-                  <span className="text-3xl font-black tracking-tighter text-indigo-500">
+                  <span className="text-3xl font-black tracking-tighter text-black">
                     ₹{subtotal}
                   </span>
                 </div>
               </div>
 
               <button
-                onClick={handleSubmit}
-                className="w-full bg-white text-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 hover:text-white transition-all active:scale-95 shadow-xl"
+                type="submit"
+                form="checkout-form"
+                className="w-full bg-black text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-all active:scale-95 shadow-xl shadow-black/10"
               >
                 Complete Payment
               </button>

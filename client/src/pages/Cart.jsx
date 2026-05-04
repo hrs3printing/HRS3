@@ -19,7 +19,7 @@ const Cart = () => {
   const handleRemove = async (id) => {
     try {
       await removeFromCart(id);
-      toast.success("Item removed from archive");
+      toast.success("Item removed from cart");
     } catch (err) {
       toast.error("Removal failed");
     }
@@ -84,7 +84,7 @@ const Cart = () => {
                 >
                   <Link
                     to={`/product/${item.product?._id}`}
-                    className="relative aspect-[3/4] w-28 sm:w-40 shrink-0 overflow-hidden rounded-3xl bg-zinc-50 border border-zinc-100 shadow-sm transition-transform duration-500 group-hover:scale-95"
+                    className="relative aspect-3/4 w-28 sm:w-40 shrink-0 overflow-hidden rounded-3xl bg-zinc-50 border border-zinc-100 shadow-sm transition-transform duration-500 group-hover:scale-95"
                   >
                     <img
                       src={item.product?.image?.url || item.product?.image}
@@ -192,17 +192,17 @@ const Cart = () => {
 
             {/* SUMMARY */}
             <div className="lg:sticky lg:top-32 h-fit animate-slideLeft">
-              <div className="bg-zinc-900 rounded-[3rem] p-8 sm:p-12 text-white space-y-10 shadow-2xl shadow-black/10">
+              <div className="bg-white rounded-[3rem] p-8 sm:p-12 text-black space-y-10 shadow-2xl shadow-zinc-100 border border-zinc-100">
                 <div className="space-y-4">
                   <h3 className="text-2xl font-black uppercase tracking-tighter">
                     Order Summary
                   </h3>
-                  <div className="h-px w-full bg-zinc-800" />
+                  <div className="h-px w-full bg-zinc-100" />
                 </div>
 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                       Subtotal
                     </span>
                     <span className="text-sm font-black uppercase tracking-tight">
@@ -210,19 +210,19 @@ const Cart = () => {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                       Shipping
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">
                       Free
                     </span>
                   </div>
-                  <div className="h-px w-full border-t border-dashed border-zinc-800" />
+                  <div className="h-px w-full border-t border-dashed border-zinc-100" />
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
                       Total
                     </span>
-                    <span className="text-2xl font-black tracking-tighter text-indigo-500">
+                    <span className="text-2xl font-black tracking-tighter text-black">
                       ₹{total}
                     </span>
                   </div>
@@ -230,12 +230,12 @@ const Cart = () => {
 
                 <button
                   onClick={() => navigate("/checkout")}
-                  className="w-full bg-white text-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 hover:text-white transition-all active:scale-95 shadow-xl"
+                  className="w-full bg-black text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-all active:scale-95 shadow-xl shadow-black/10"
                 >
                   Proceed to Checkout
                 </button>
 
-                <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest text-center leading-relaxed">
+                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest text-center leading-relaxed">
                   Taxes and shipping calculated at checkout.
                 </p>
               </div>

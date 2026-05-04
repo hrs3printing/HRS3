@@ -8,7 +8,7 @@ const Collections = () => {
         <div className="mb-12 sm:mb-16">
           <div className="animate-slideRight will-change-both">
             <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter text-black leading-none mb-6">
-              Shop By <span className="text-gray-200">Category</span>
+              Shop By <span className="text-zinc-200">Category</span>
             </h2>
             <div className="flex items-center gap-3">
               <span className="h-px w-8 bg-indigo-600" />
