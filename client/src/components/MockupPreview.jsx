@@ -12,11 +12,13 @@ const MockupPreview = ({ type = "t-shirt" }) => {
   const [backImage, setBackImage] = useState(null);
   const [frontConfig, setFrontConfig] = useState({
     scale: 1,
+    borderRadius: 0,
     position: { x: 0, y: 0 },
     placement: "both-side",
   });
   const [backConfig, setBackConfig] = useState({
     scale: 1,
+    borderRadius: 0,
     position: { x: 0, y: 0 },
     placement: "full-back",
   });
@@ -92,6 +94,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
     const isMobile = window.innerWidth < 768;
     let newScale = 1.1;
     let newPosition = { x: 0, y: 0 };
+    let newBorderRadius = 0;
 
     if (type === "left-side") {
       newScale = isMobile ? 0.3 : 0.35;
@@ -108,6 +111,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
     } else if (type === "round") {
       newScale = isMobile ? 0.7 : 0.8;
       newPosition = { x: 0, y: isMobile ? -10 : -20 };
+      newBorderRadius = 100; // Full round
     } else if (type === "both-side" || type === "full-back") {
       newScale = 1.1;
       newPosition = { x: 0, y: 0 };
@@ -119,6 +123,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
         placement: type,
         scale: newScale,
         position: newPosition,
+        borderRadius: newBorderRadius,
       }));
     } else {
       setBackConfig((prev) => ({
@@ -126,6 +131,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
         placement: type,
         scale: newScale,
         position: newPosition,
+        borderRadius: newBorderRadius,
       }));
     }
   };
@@ -135,6 +141,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
       setFrontImage(null);
       setFrontConfig({
         scale: 1,
+        borderRadius: 0,
         position: { x: 0, y: 0 },
         placement: "both-side",
       });
@@ -143,6 +150,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
       setBackImage(null);
       setBackConfig({
         scale: 1,
+        borderRadius: 0,
         position: { x: 0, y: 0 },
         placement: "full-back",
       });
@@ -185,7 +193,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
                 : isMug
                   ? "Full Center"
                   : "Both Sides (Full Front)"
-        } (X: ${Math.round(frontConfig.position.x)}, Y: ${Math.round(frontConfig.position.y)}, Scale: ${Math.round(frontConfig.scale * 100)}%)`
+        } (X: ${Math.round(frontConfig.position.x)}, Y: ${Math.round(frontConfig.position.y)}, Scale: ${Math.round(frontConfig.scale * 100)}%, Roundness: ${frontConfig.borderRadius}%)`
       : "";
     const backMsg =
       !isMug && backImage
@@ -197,7 +205,7 @@ const MockupPreview = ({ type = "t-shirt" }) => {
                 : backConfig.placement === "round"
                   ? "Round Print"
                   : "Full Back Print"
-          } (X: ${Math.round(backConfig.position.x)}, Y: ${Math.round(backConfig.position.y)}, Scale: ${Math.round(backConfig.scale * 100)}%)`
+          } (X: ${Math.round(backConfig.position.x)}, Y: ${Math.round(backConfig.position.y)}, Scale: ${Math.round(backConfig.scale * 100)}%, Roundness: ${backConfig.borderRadius}%)`
         : "";
     const fabricMsg = selectedFabric ? `\nFabric: ${selectedFabric}` : "";
     const printMsg = selectedPrintType
@@ -268,27 +276,18 @@ const MockupPreview = ({ type = "t-shirt" }) => {
                   className="absolute top-[28%] left-1/2 -translate-x-1/2 z-10 cursor-grab active:cursor-grabbing"
                 >
                   <div
-                    className={`relative w-32 h-32 sm:w-48 sm:h-48 group/design flex items-center justify-center ${
-                      config.placement === "round"
-                        ? "rounded-full overflow-hidden"
-                        : ""
-                    }`}
+                    style={{ borderRadius: `${config.borderRadius}%` }}
+                    className="relative w-32 h-32 sm:w-48 sm:h-48 group/design flex items-center justify-center overflow-hidden"
                   >
                     <img
                       src={image}
                       alt="User Design"
-                      className={`w-full h-full opacity-90 drop-shadow-sm brightness-105 contrast-110 ${
-                        config.placement === "round"
-                          ? "object-cover"
-                          : "object-contain"
-                      }`}
+                      style={{ borderRadius: `${config.borderRadius}%` }}
+                      className="w-full h-full opacity-90 drop-shadow-sm brightness-105 contrast-110 object-cover"
                     />
                     <div
-                      className={`absolute inset-0 border-2 border-dashed border-indigo-500/50 opacity-100 transition-opacity pointer-events-none ${
-                        config.placement === "round"
-                          ? "rounded-full"
-                          : "rounded-lg"
-                      }`}
+                      style={{ borderRadius: `${config.borderRadius}%` }}
+                      className="absolute inset-0 border-2 border-dashed border-indigo-500/50 opacity-100 transition-opacity pointer-events-none"
                     />
                   </div>
                 </motion.div>
@@ -396,7 +395,9 @@ const MockupPreview = ({ type = "t-shirt" }) => {
                   >
                     <div
                       className={`h-1.5 w-1.5 rounded-full ${
-                        config.placement === "round" ? "bg-white" : "bg-zinc-200"
+                        config.placement === "round"
+                          ? "bg-white"
+                          : "bg-zinc-200"
                       }`}
                     />
                     <span className="text-[9px] font-black uppercase tracking-widest">
@@ -432,7 +433,9 @@ const MockupPreview = ({ type = "t-shirt" }) => {
                 </div>
               )}
 
-              <div className={`space-y-4 ${!isMug ? "pt-4 border-t border-zinc-50" : ""}`}>
+              <div
+                className={`space-y-4 ${!isMug ? "pt-4 border-t border-zinc-50" : ""}`}
+              >
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
@@ -456,6 +459,33 @@ const MockupPreview = ({ type = "t-shirt" }) => {
                     }
                     className="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                        Roundness
+                      </span>
+                      <span className="text-[9px] font-black text-indigo-600">
+                        {config.borderRadius}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={config.borderRadius}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          borderRadius: parseInt(e.target.value),
+                        }))
+                      }
+                      className="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
