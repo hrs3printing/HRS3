@@ -19,7 +19,7 @@ const Cart = () => {
   const handleRemove = async (id) => {
     try {
       await removeFromCart(id);
-      toast.success("Item removed from cart");
+      toast.success("Item removed from archive");
     } catch (err) {
       toast.error("Removal failed");
     }
@@ -84,7 +84,7 @@ const Cart = () => {
                 >
                   <Link
                     to={`/product/${item.product?._id}`}
-                    className="relative aspect-3/4 w-28 sm:w-40 shrink-0 overflow-hidden rounded-3xl bg-zinc-50 border border-zinc-100 shadow-sm transition-transform duration-500 group-hover:scale-95"
+                    className="relative aspect-[3/4] w-28 sm:w-40 shrink-0 overflow-hidden rounded-3xl bg-zinc-50 border border-zinc-100 shadow-sm transition-transform duration-500 group-hover:scale-95"
                   >
                     <img
                       src={item.product?.image?.url || item.product?.image}

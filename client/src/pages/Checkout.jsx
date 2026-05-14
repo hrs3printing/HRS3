@@ -1,4 +1,4 @@
-import { useState, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, PageContent } from "../components/PageShell";
 import { useCart } from "../context/CartContext";
@@ -94,8 +94,8 @@ const Checkout = () => {
               </p>
             </div>
 
-            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
                     First Name
@@ -122,7 +122,7 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
                     Email Address
@@ -164,7 +164,7 @@ const Checkout = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              <div className="grid grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-zinc-900 ml-1">
                     City
@@ -274,8 +274,7 @@ const Checkout = () => {
               </div>
 
               <button
-                type="submit"
-                form="checkout-form"
+                onClick={handleSubmit}
                 className="w-full bg-black text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-indigo-600 transition-all active:scale-95 shadow-xl shadow-black/10"
               >
                 Complete Payment

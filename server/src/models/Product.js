@@ -58,6 +58,14 @@ const productSchema = new mongoose.Schema(
     description: String,
     rating: { type: Number, default: 0 },
     reviews: { type: Number, default: 0 },
+    mockupConfig: {
+      enabled: { type: Boolean, default: true },
+      type: {
+        type: String,
+        enum: ["t-shirt", "mug"],
+        default: "t-shirt",
+      },
+    },
   },
   { timestamps: true },
 );

@@ -64,8 +64,10 @@ const PRINT_TECHNOLOGIES = [
 const PRINT_AREAS = [
   "Front (Center)",
   "Back (Center)",
-  "Left Chest",
-  "Right Chest",
+  "Left Side",
+  "Right Side",
+  "Round",
+  "Both Side",
   "Left Sleeve",
   "Right Sleeve",
   "Full Wrap",
@@ -113,6 +115,10 @@ const ProductForm = ({ initialData, onSubmit, onCancel }) => {
     attributes: [],
     description: "",
     status: "published",
+    mockupConfig: {
+      enabled: true,
+      type: "t-shirt",
+    },
   });
 
   const [newAttribute, setNewAttribute] = useState({ key: "", value: "" });
@@ -122,7 +128,13 @@ const ProductForm = ({ initialData, onSubmit, onCancel }) => {
   // Sync with initialData when it changes (e.g. when starting to edit)
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        ...initialData,
+        mockupConfig: initialData.mockupConfig || {
+          enabled: true,
+          type: "t-shirt",
+        },
+      });
       // If the product has sizes not in our default list, add them to available sizes
       if (initialData.size && Array.isArray(initialData.size)) {
         setAvailableSizes((prev) => {
@@ -1111,6 +1123,82 @@ const ProductForm = ({ initialData, onSubmit, onCancel }) => {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="space-y-6 pt-10 border-t border-zinc-800">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-white">
+                  Visual Lab Configuration
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">
+                  Preview Type (Visual Lab)
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        mockupConfig: { ...form.mockupConfig, enabled: false },
+                      })
+                    }
+                    className={`py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border-2 ${
+                      !form.mockupConfig?.enabled
+                        ? "bg-zinc-700 border-zinc-700 text-white shadow-[0_0_15px_rgba(0,0,0,0.3)]"
+                        : "bg-zinc-900 text-zinc-600 border-zinc-800 hover:border-zinc-700"
+                    }`}
+                  >
+                    None
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        mockupConfig: {
+                          enabled: true,
+                          type: "t-shirt",
+                        },
+                      })
+                    }
+                    className={`py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border-2 ${
+                      form.mockupConfig?.enabled &&
+                      form.mockupConfig?.type === "t-shirt"
+                        ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                        : "bg-zinc-900 text-zinc-600 border-zinc-800 hover:border-zinc-700"
+                    }`}
+                  >
+                    T-Shirt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        mockupConfig: {
+                          enabled: true,
+                          type: "mug",
+                        },
+                      })
+                    }
+                    className={`py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all border-2 ${
+                      form.mockupConfig?.enabled &&
+                      form.mockupConfig?.type === "mug"
+                        ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                        : "bg-zinc-900 text-zinc-600 border-zinc-800 hover:border-zinc-700"
+                    }`}
+                  >
+                    Mug
+                  </button>
+                </div>
+                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest ml-1">
+                  Select which interactive customization lab is shown to customers for this product.
+                </p>
+              </div>
             </div>
 
             <div className="pt-8 border-t border-zinc-800">

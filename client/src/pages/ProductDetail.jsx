@@ -409,9 +409,11 @@ const ProductDetail = () => {
           </div>
 
           {/* MOCKUP PREVIEW SECTION */}
-          <div className="mt-32">
-            <MockupPreview />
-          </div>
+          {product.mockupConfig?.enabled && (
+            <div className="mt-32">
+              <MockupPreview type={product.mockupConfig?.type} />
+            </div>
+          )}
 
           {/* RELATED PRODUCTS */}
           {relatedProducts.length > 0 && (
